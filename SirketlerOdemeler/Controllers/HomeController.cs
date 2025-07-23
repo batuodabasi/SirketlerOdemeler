@@ -1,19 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using SirketlerOdemeler.Data;
 using SirketlerOdemeler.Models;
 using System.IO;
 using System.Threading.Tasks;
+using System.Net.Http;
+using System.Text.RegularExpressions;
+using System;
+using System.Linq;
 
 namespace SirketlerOdemeler.Controllers
 {
     public class HomeController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public HomeController(AppDbContext context)
+        public HomeController(AppDbContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
         public IActionResult Index()
@@ -29,7 +36,7 @@ namespace SirketlerOdemeler.Controllers
 
             if (Dosya == null || Dosya.Length == 0)
             {
-                return Json(new { success = false, message = "Dosya yüklenemedi veya boþ." });
+                return Json(new { success = false, message = "Dosya yÃ¼klenemedi veya boÅŸ." });
             }
 
             Odemeler sonEklenenOdeme = null;
@@ -40,8 +47,10 @@ namespace SirketlerOdemeler.Controllers
                 {
                     satirNumarasi++;
                     var satir = await reader.ReadLineAsync();
+                    if (string.IsNullOrWhiteSpace(satir)) continue;
+
                     satir = satir.TrimEnd(';');
-                    var parcalar = satir.Split(';');
+                    var parcalar = satir.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
                     int toplam = 0;
 
@@ -57,7 +66,7 @@ namespace SirketlerOdemeler.Controllers
                             return Json(new
                             {
                                 success = false,
-                                message = $"{satirNumarasi}. satýrýn {i + 1}. sütununda sayý olmayan bir deðer var: '{parca}'"
+                                message = $"{satirNumarasi}. satÄ±rÄ±n {i + 1}. sÃ¼tununda sayÄ± olmayan bir deÄŸer var: '{parca}'"
                             });
                         }
                     }
@@ -79,7 +88,7 @@ namespace SirketlerOdemeler.Controllers
 
             if (toplamSatir == 0)
             {
-                return Json(new { success = false, message = "Dosyanýzda geçerli veri yok." });
+                return Json(new { success = false, message = "DosyanÄ±zda geÃ§erli veri yok." });
             }
 
             await _context.SaveChangesAsync();
@@ -89,7 +98,7 @@ namespace SirketlerOdemeler.Controllers
             return Json(new
             {
                 success = true,
-                message = "Ödenen tutar baþarýyla kaydedildi.",
+                message = "Ã–denen Tutar BaÅŸarÄ±yla Kaydedildi.",
                 yeniOdeme = new
                 {
                     sirketAd = sirket?.SirketAd ?? "Bilinmeyen",
@@ -98,13 +107,11 @@ namespace SirketlerOdemeler.Controllers
             });
         }
 
-        //Tüm Ödemeler
         [HttpGet]
         public async Task<JsonResult> TumOdemeleriGetir()
         {
             var result = await (from o in _context.Odemeler
-                                join s in _context.Sirketler
-                                on o.SKod equals s.SKod
+                                join s in _context.Sirketler on o.SKod equals s.SKod
                                 select new
                                 {
                                     sirketAd = s.SirketAd,
@@ -114,84 +121,87 @@ namespace SirketlerOdemeler.Controllers
             return Json(result);
         }
 
-        //Microsoft Ödemeleri
+        [HttpGet]
+        public async Task<JsonResult> SirketOdemeleri(string sirketAd)
+        {
+            if (string.IsNullOrWhiteSpace(sirketAd))
+                return Json(new { success = false, message = "Åžirket adÄ± gerekli." });
+
+            var result = await (from o in _context.Odemeler
+                                join s in _context.Sirketler on o.SKod equals s.SKod
+                                where s.SirketAd == sirketAd
+                                select new
+                                {
+                                    sirketAd = s.SirketAd,
+                                    odenenTutar = o.OdenenTutar
+                                }).ToListAsync();
+
+            return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> OzetBilgi()
+        {
+            var toplamSirket = await _context.Sirketler.CountAsync();
+            var toplamOdeme = await _context.Odemeler.SumAsync(o => (int?)o.OdenenTutar) ?? 0;
+            return Json(new { toplamSirket, toplamOdeme });
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> HaberBasliklariGetir(string sirket)
+        {
+            if (string.IsNullOrWhiteSpace(sirket))
+                return Json(new { success = false, message = "Åžirket adÄ± gerekli." });
+
+            string url = $"https://www.haberturk.com/arama/{Uri.EscapeDataString(sirket)}?tr={Uri.EscapeDataString(sirket)}";
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var html = await httpClient.GetStringAsync(url);
+
+                var matches = Regex.Matches(html, "<span[^>]*data-name=\\\"title\\\"[^>]*>(.*?)<\\/span>", RegexOptions.IgnoreCase);
+                var basliklar = matches
+                    .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
+                    .Where(b => b.Contains(sirket, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                return Json(new { success = true, basliklar, kaynak = "HabertÃ¼rk", url });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "BaÅŸlÄ±klar alÄ±namadÄ±.", hata = ex.Message, url });
+            }
+        }
+
+        //Åžirket bazÄ± verilerin geldiÄŸi yer.
         [HttpGet]
         public async Task<JsonResult> MicrosoftSirketiOdemeleri()
         {
-            var result = await (from o in _context.Odemeler
-                                join s in _context.Sirketler on o.SKod equals s.SKod
-                                where s.SirketAd == "Microsoft"
-                                select new
-                                {
-                                    sirketAd = s.SirketAd,
-                                    odenenTutar = o.OdenenTutar
-                                }).ToListAsync();
-
-            return Json(result);
+            return await SirketOdemeleri("Microsoft");
         }
 
-        //Oracle Ödemeleri
         [HttpGet]
         public async Task<JsonResult> OracleSirketiOdemeleri()
         {
-            var result = await (from o in _context.Odemeler
-                                join s in _context.Sirketler on o.SKod equals s.SKod
-                                where s.SirketAd == "Oracle"
-                                select new
-                                {
-                                    sirketAd = s.SirketAd,
-                                    odenenTutar = o.OdenenTutar
-                                }).ToListAsync();
-
-            return Json(result);
+            return await SirketOdemeleri("Oracle");
         }
 
-        //Nvidia Ödemeleri
         [HttpGet]
         public async Task<JsonResult> NvidiaSirketiOdemeleri()
         {
-            var result = await (from o in _context.Odemeler
-                                join s in _context.Sirketler on o.SKod equals s.SKod
-                                where s.SirketAd == "Nvidia"
-                                select new
-                                {
-                                    sirketAd = s.SirketAd,
-                                    odenenTutar = o.OdenenTutar
-                                }).ToListAsync();
-
-            return Json(result);
+            return await SirketOdemeleri("Nvidia");
         }
 
-        //Ford Ödemeleri
         [HttpGet]
         public async Task<JsonResult> FordSirketiOdemeleri()
         {
-            var result = await (from o in _context.Odemeler
-                                join s in _context.Sirketler on o.SKod equals s.SKod
-                                where s.SirketAd == "Ford"
-                                select new
-                                {
-                                    sirketAd = s.SirketAd,
-                                    odenenTutar = o.OdenenTutar
-                                }).ToListAsync();
-
-            return Json(result);
+            return await SirketOdemeleri("Ford");
         }
 
-        //Pegasus Ödemeleri
         [HttpGet]
         public async Task<JsonResult> PegasusSirketiOdemeleri()
         {
-            var result = await (from o in _context.Odemeler
-                                join s in _context.Sirketler on o.SKod equals s.SKod
-                                where s.SirketAd == "Pegasus"
-                                select new
-                                {
-                                    sirketAd = s.SirketAd,
-                                    odenenTutar = o.OdenenTutar
-                                }).ToListAsync();
-
-            return Json(result);
+            return await SirketOdemeleri("Pegasus");
         }
     }
 }

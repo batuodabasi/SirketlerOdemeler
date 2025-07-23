@@ -16,5 +16,7 @@ namespace SirketlerOdemeler.Data
 
         // Veritabanında Odemeler adlı tabloyu bu tablo tanımlayacack.
         public DbSet<Odemeler> Odemeler { get; set; }
+
+        public DbSet<Haberler> Haberler { get; set; }
     }
 }

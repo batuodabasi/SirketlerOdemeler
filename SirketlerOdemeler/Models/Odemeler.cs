@@ -10,7 +10,7 @@ namespace SirketlerOdemeler.Models
 
         [ForeignKey("Sirketler")]
         public int SKod { get; set; }
-
+            
         public int OdenenTutar { get; set; }
     }
 }

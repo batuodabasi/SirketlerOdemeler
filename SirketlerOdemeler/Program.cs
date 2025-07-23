@@ -8,6 +8,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -15,19 +16,18 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    // Veritabanýný migrate et
+    // VeritabanÄ±nÄ± migrate et
     context.Database.Migrate();
 
     // Sirketler tablosuna seed
     if (!context.Sirketler.Any())
     {
         context.Sirketler.AddRange(
-            new Sirketler { SirketAd = "ABC Sigorta", SirketMail = "abc@mail.com"},
-            new Sirketler { SirketAd = "DEF Sigorta", SirketMail = "def@mail.com"},
-            new Sirketler { SirketAd = "GHI Sigorta", SirketMail = "ghý@mail.com" },
-            new Sirketler { SirketAd = "JKL Sigorta", SirketMail = "jkl@mail.com" }
-
-
+            new Sirketler { SirketAd = "Microsoft", SirketMail = "microsoft@mail.com" },
+            new Sirketler { SirketAd = "Oracle", SirketMail = "oracle@mail.com" },
+            new Sirketler { SirketAd = "Nvidia", SirketMail = "nvidia@mail.com" },
+            new Sirketler { SirketAd = "Ford", SirketMail = "ford@mail.com" },
+            new Sirketler { SirketAd = "Pegasus", SirketMail = "pegasus@mail.com" }
         );
         context.SaveChanges();
     }
@@ -36,17 +36,22 @@ using (var scope = app.Services.CreateScope())
     if (!context.Odemeler.Any())
     {
         context.Odemeler.AddRange(
-            new Odemeler { SKod = 1, OdenenTutar = 130400},
-            new Odemeler { SKod = 1, OdenenTutar = 180400},
-            new Odemeler { SKod = 2, OdenenTutar = 204000},
-            new Odemeler { SKod = 2, OdenenTutar = 236000},
-            new Odemeler { SKod = 2, OdenenTutar = 294000},
-            new Odemeler { SKod = 3, OdenenTutar = 400040},
-            new Odemeler { SKod = 4, OdenenTutar = 304000},
-            new Odemeler { SKod = 4, OdenenTutar = 302000},
-            new Odemeler { SKod = 4, OdenenTutar = 300000},
-            new Odemeler { SKod = 4, OdenenTutar = 307000},
-            new Odemeler { SKod = 4, OdenenTutar = 382000}
+            new Odemeler { SKod = 1, OdenenTutar = 130400 },
+            new Odemeler { SKod = 1, OdenenTutar = 180400 },
+            new Odemeler { SKod = 1, OdenenTutar = 189400 },
+            new Odemeler { SKod = 2, OdenenTutar = 204000 },
+            new Odemeler { SKod = 2, OdenenTutar = 236000 },
+            new Odemeler { SKod = 2, OdenenTutar = 236900 },
+            new Odemeler { SKod = 2, OdenenTutar = 294000 },
+            new Odemeler { SKod = 3, OdenenTutar = 400040 },
+            new Odemeler { SKod = 3, OdenenTutar = 200040 },
+            new Odemeler { SKod = 3, OdenenTutar = 410040 },
+            new Odemeler { SKod = 3, OdenenTutar = 401040 },
+            new Odemeler { SKod = 4, OdenenTutar = 304000 },
+            new Odemeler { SKod = 4, OdenenTutar = 302000 },
+            new Odemeler { SKod = 4, OdenenTutar = 300000 },
+            new Odemeler { SKod = 4, OdenenTutar = 307000 },
+            new Odemeler { SKod = 4, OdenenTutar = 382000 }
         );
         context.SaveChanges();
     }
@@ -60,14 +65,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseStaticFiles(); // Bu satÄ±rla wwwroot iÃ§eriÄŸini servis et
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

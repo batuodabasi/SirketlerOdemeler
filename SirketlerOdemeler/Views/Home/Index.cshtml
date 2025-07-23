@@ -2,102 +2,218 @@
     ViewData["Title"] = "Ödeme Yönetimi";
 }
 
+<!-- Google Fonts & Bootstrap Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 <!-- Bootstrap & DataTables stilleri -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+<style>
+    body {
+        font-family: 'Inter', Arial, sans-serif;
+        background: linear-gradient(120deg, #f8fafc 0%, #e0e7ef 100%);
+        min-height: 100vh;
+    }
+    .modern-card {
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+        border-radius: 1.2rem;
+        background: #fff;
+        border: none;
+    }
+    .modern-tabs .nav-link {
+        font-weight: 600;
+        color: #495057;
+        border-radius: 2rem;
+        margin-right: 0.5rem;
+        transition: background 0.2s, color 0.2s;
+    }
+    .modern-tabs .nav-link.active {
+        background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(99,102,241,0.12);
+    }
+    .modern-table th {
+        background: #f1f5f9;
+        font-weight: 700;
+        color: #374151;
+    }
+    .modern-table td {
+        vertical-align: middle;
+    }
+    .modern-table tr {
+        transition: background 0.2s;
+    }
+    .modern-table tr:hover {
+        background: #f3f4f6;
+    }
+    .modern-badge {
+        background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+        color: #fff;
+        font-size: 1rem;
+        border-radius: 1rem;
+        padding: 0.4em 1em;
+        margin-left: 0.5em;
+    }
+    .welcome-banner {
+        background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+        color: #fff;
+        border-radius: 1.2rem;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 12px rgba(99,102,241,0.10);
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+    }
+    .welcome-banner i {
+        font-size: 2.5rem;
+        opacity: 0.85;
+    }
+    .summary-box {
+        background: #f1f5f9;
+        border-radius: 1rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 2rem;
+        justify-content: space-between;
+        font-size: 1.1rem;
+    }
+    .summary-box span {
+        font-weight: 600;
+        color: #6366f1;
+    }
+    #mesaj {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+        text-align: center;
+    }
+</style>
 
-<div class="container mt-4">
-    <h2>@ViewData["Title"]</h2>
-
+<div class="container mt-5 mb-5">
+    <div class="welcome-banner mb-4">
+        <i class="bi bi-cash-coin"></i>
+        <div>
+            <h2 class="mb-1" style="font-weight:700;">@ViewData["Title"]</h2>
+            <div style="font-size:1.1rem;opacity:0.85;">Hoş geldiniz! Şirket ödemelerinizi kolayca yönetin ve takip edin.</div>
+        </div>
+    </div>
+    <div class="summary-box mb-4">
+        <div><i class="bi bi-building"></i> Toplam Şirket: <span id="summarySirket">-</span></div>
+        <div><i class="bi bi-wallet2"></i> Toplam Ödeme: <span id="summaryOdeme">-</span></div>
+    </div>
     <!-- Sekmeler -->
-    <ul class="nav nav-pills mb-3" id="tabMenu" role="tablist">
+    <ul class="nav nav-pills modern-tabs mb-3" id="tabMenu" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="ekle-tab" data-bs-toggle="pill" data-bs-target="#ekle" type="button" role="tab">Ödeme Yükle</button>
+            <button class="nav-link active" id="ekle-tab" data-bs-toggle="pill" data-bs-target="#ekle" type="button" role="tab"><i class="bi bi-upload"></i> Ödeme Yükle</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="liste-tab" data-bs-toggle="pill" data-bs-target="#liste" type="button" role="tab">Tüm Ödemeler</button>
+            <button class="nav-link" id="liste-tab" data-bs-toggle="pill" data-bs-target="#liste" type="button" role="tab"><i class="bi bi-list-ul"></i> Tüm Ödemeler</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="microsoft-tab" data-bs-toggle="pill" data-bs-target="#microsoft" type="button" role="tab">Microsoft</button>
+            <button class="nav-link" id="microsoft-tab" data-bs-toggle="pill" data-bs-target="#microsoft" type="button" role="tab">
+                <i class="bi bi-windows"></i> Microsoft
+                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Microsoft" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="oracle-tab" data-bs-toggle="pill" data-bs-target="#oracle" type="button" role="tab">Oracle</button>
+            <button class="nav-link" id="oracle-tab" data-bs-toggle="pill" data-bs-target="#oracle" type="button" role="tab">
+                <i class="bi bi-database"></i> Oracle
+                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Oracle" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="nvidia-tab" data-bs-toggle="pill" data-bs-target="#nvidia" type="button" role="tab">Nvidia</button>
+            <button class="nav-link" id="nvidia-tab" data-bs-toggle="pill" data-bs-target="#nvidia" type="button" role="tab">
+                <i class="bi bi-gpu-card"></i> Nvidia
+                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Nvidia" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="ford-tab" data-bs-toggle="pill" data-bs-target="#ford" type="button" role="tab">Ford</button>
+            <button class="nav-link" id="ford-tab" data-bs-toggle="pill" data-bs-target="#ford" type="button" role="tab">
+                <i class="bi bi-truck"></i> Ford
+                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Ford" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="pegasus-tab" data-bs-toggle="pill" data-bs-target="#pegasus" type="button" role="tab">Pegasus</button>
+            <button class="nav-link" id="pegasus-tab" data-bs-toggle="pill" data-bs-target="#pegasus" type="button" role="tab">
+                <i class="bi bi-airplane"></i> Pegasus
+                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Pegasus" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
+            </button>
         </li>
     </ul>
-
     <div class="tab-content" id="tabContent">
         <!-- Ödeme Yükle -->
         <div class="tab-pane fade show active" id="ekle" role="tabpanel">
-            <form id="uploadForm" enctype="multipart/form-data" class="p-3 border rounded">
-                <div class="mb-3">
-                    <label class="form-label">Şirket Kodu (SKod):</label>
-                    <input type="number" name="SKod" class="form-control" required />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Ödeme Dosyası (.txt):</label>
-                    <input type="file" name="Dosya" accept=".txt" class="form-control" required />
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Yükle</button>
-            </form>
-            <div id="mesaj" class="p-3"></div>
+            <div class="card modern-card p-4 mb-4">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-building"></i> Şirket Kodu (SKod):</label>
+                        <input type="number" name="SKod" class="form-control form-control-lg" required placeholder="Örn: 1001" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-file-earmark-text"></i> Ödeme Dosyası (.txt):</label>
+                        <input type="file" name="Dosya" accept=".txt" class="form-control form-control-lg" required />
+                    </div>
+                    <button type="submit" class="btn btn-gradient w-100 py-2" style="background:linear-gradient(90deg,#6366f1 0%,#60a5fa 100%);color:#fff;font-weight:600;font-size:1.1rem;"><i class="bi bi-cloud-arrow-up"></i> Yükle</button>
+                </form>
+                <div id="mesaj" class="p-3"></div>
+            </div>
         </div>
-
         <!-- Tüm Ödemeler -->
         <div class="tab-pane fade" id="liste" role="tabpanel">
-            <table id="sonuclar" class="display table table-striped mt-3" style="width:100%;">
-                <thead>
-                    <tr>
-                        <th>Şirket Adı</th>
-                        <th>Ödenen Tutar</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div class="card modern-card p-4">
+                <table id="sonuclar" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th>
+                            <th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-
         <!-- Şirket Sekmeleri -->
         <div class="tab-pane fade" id="microsoft" role="tabpanel">
-            <table id="microsoftOdemeleri" class="display table table-striped mt-3" style="width:100%;">
-                <thead><tr><th>Şirket Adı</th><th>Ödenen Tutar</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div class="card modern-card p-4">
+                <table id="microsoftOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-
         <div class="tab-pane fade" id="oracle" role="tabpanel">
-            <table id="oracleOdemeleri" class="display table table-striped mt-3" style="width:100%;">
-                <thead><tr><th>Şirket Adı</th><th>Ödenen Tutar</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div class="card modern-card p-4">
+                <table id="oracleOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-
         <div class="tab-pane fade" id="nvidia" role="tabpanel">
-            <table id="nvidiaOdemeleri" class="display table table-striped mt-3" style="width:100%;">
-                <thead><tr><th>Şirket Adı</th><th>Ödenen Tutar</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div class="card modern-card p-4">
+                <table id="nvidiaOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-
         <div class="tab-pane fade" id="ford" role="tabpanel">
-            <table id="fordOdemeleri" class="display table table-striped mt-3" style="width:100%;">
-                <thead><tr><th>Şirket Adı</th><th>Ödenen Tutar</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div class="card modern-card p-4">
+                <table id="fordOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-
         <div class="tab-pane fade" id="pegasus" role="tabpanel">
-            <table id="pegasusOdemeleri" class="display table table-striped mt-3" style="width:100%;">
-                <thead><tr><th>Şirket Adı</th><th>Ödenen Tutar</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div class="card modern-card p-4">
+                <table id="pegasusOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -106,10 +222,44 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     let table, tableMicrosoft, tableOracle, tableNvidia, tableFord, tablePegasus;
-
+    // Özet kutusunu güncelleyen fonksiyon
+    function ozetKutusuGuncelle() {
+        fetch("/Home/OzetBilgi").then(res => res.json()).then(data => {
+            $("#summarySirket").text(data.toplamSirket ?? "-");
+            $("#summaryOdeme").text(data.toplamOdeme ?? "-");
+        }).catch(()=>{});
+    }
+    // Şirket tabına göre şirket adını döndürür
+    function getSirketAdiByTab(tabId) {
+        switch(tabId) {
+            case '#microsoft': return 'Microsoft';
+            case '#oracle': return 'Oracle';
+            case '#nvidia': return 'Nvidia';
+            case '#ford': return 'Ford';
+            case '#pegasus': return 'Pegasus';
+            default: return null;
+        }
+    }
+    // DataTable search inputuna Google arama event'i ekler
+    function addGoogleSearchEvent(tableInstance, tabId) {
+        const sirketAdi = getSirketAdiByTab(tabId);
+        if (!sirketAdi) return;
+        // DataTables search input'unu bul
+        const searchInput = $(tableInstance.table().container()).find('input[type="search"]');
+        // Önce eski eventleri kaldır
+        searchInput.off('keypress.googleSearch');
+        // Enter'a basıldığında Google'da arama yap
+        searchInput.on('keypress.googleSearch', function(e) {
+            if (e.which === 13 && this.value.trim() !== '') {
+                const query = encodeURIComponent(sirketAdi + ' ' + this.value + ' haberleri');
+                window.open('https://www.google.com/search?q=' + query, '_blank', 'width=900,height=700');
+            }
+        });
+    }
     $(document).ready(function () {
         // DataTables init
         table = $('#sonuclar').DataTable({ columns: [{ data: 'sirketAd' }, { data: 'odenenTutar' }] });
@@ -118,49 +268,52 @@
         tableNvidia = $('#nvidiaOdemeleri').DataTable({ columns: [{ data: 'sirketAd' }, { data: 'odenenTutar' }] });
         tableFord = $('#fordOdemeleri').DataTable({ columns: [{ data: 'sirketAd' }, { data: 'odenenTutar' }] });
         tablePegasus = $('#pegasusOdemeleri').DataTable({ columns: [{ data: 'sirketAd' }, { data: 'odenenTutar' }] });
-
         // Sekmelere veri çekme
         $('button[data-bs-target="#liste"]').on('shown.bs.tab', () => {
             fetch("/Home/TumOdemeleriGetir").then(res => res.json()).then(data => {
                 table.clear().rows.add(data).draw();
             });
         });
-
         $('button[data-bs-target="#microsoft"]').on('shown.bs.tab', () => {
             fetch("/Home/MicrosoftSirketiOdemeleri").then(res => res.json()).then(data => {
                 tableMicrosoft.clear().rows.add(data).draw();
             });
+            addGoogleSearchEvent(tableMicrosoft, '#microsoft');
         });
-
         $('button[data-bs-target="#oracle"]').on('shown.bs.tab', () => {
             fetch("/Home/OracleSirketiOdemeleri").then(res => res.json()).then(data => {
                 tableOracle.clear().rows.add(data).draw();
             });
+            addGoogleSearchEvent(tableOracle, '#oracle');
         });
-
         $('button[data-bs-target="#nvidia"]').on('shown.bs.tab', () => {
             fetch("/Home/NvidiaSirketiOdemeleri").then(res => res.json()).then(data => {
                 tableNvidia.clear().rows.add(data).draw();
             });
+            addGoogleSearchEvent(tableNvidia, '#nvidia');
         });
-
         $('button[data-bs-target="#ford"]').on('shown.bs.tab', () => {
             fetch("/Home/FordSirketiOdemeleri").then(res => res.json()).then(data => {
                 tableFord.clear().rows.add(data).draw();
             });
+            addGoogleSearchEvent(tableFord, '#ford');
         });
-
         $('button[data-bs-target="#pegasus"]').on('shown.bs.tab', () => {
             fetch("/Home/PegasusSirketiOdemeleri").then(res => res.json()).then(data => {
                 tablePegasus.clear().rows.add(data).draw();
             });
+            addGoogleSearchEvent(tablePegasus, '#pegasus');
         });
-
+        // İlk açılışta tab aktif ise Google search event ekle
+        if ($('#microsoft').hasClass('active show')) addGoogleSearchEvent(tableMicrosoft, '#microsoft');
+        if ($('#oracle').hasClass('active show')) addGoogleSearchEvent(tableOracle, '#oracle');
+        if ($('#nvidia').hasClass('active show')) addGoogleSearchEvent(tableNvidia, '#nvidia');
+        if ($('#ford').hasClass('active show')) addGoogleSearchEvent(tableFord, '#ford');
+        if ($('#pegasus').hasClass('active show')) addGoogleSearchEvent(tablePegasus, '#pegasus');
         // Form Yükleme
         $('#uploadForm').on('submit', function (e) {
             e.preventDefault();
             const formData = new FormData(this);
-
             fetch("/Home/OdemeYukleAjax", {
                 method: "POST",
                 body: formData
@@ -168,14 +321,61 @@
             .then(res => res.json())
             .then(data => {
                 const mesajDiv = document.getElementById("mesaj");
-                mesajDiv.style.color = data.success ? "green" : "red";
+                mesajDiv.style.color = data.success ? "#22c55e" : "#ef4444";
                 mesajDiv.innerText = data.message;
-                if (data.success) setTimeout(() => mesajDiv.innerText = "", 3000);
+                if (data.success) {
+                    setTimeout(() => mesajDiv.innerText = "", 3000);
+                    ozetKutusuGuncelle(); // Başarılıysa özet kutusunu güncelle
+                }
             })
             .catch(() => {
-                document.getElementById("mesaj").style.color = "red";
+                document.getElementById("mesaj").style.color = "#ef4444";
                 document.getElementById("mesaj").innerText = "Bir hata oluştu.";
             });
         });
+        ozetKutusuGuncelle();
+    });
+
+    // Sekme haber arama ikonları
+    $(document).on('click', '.search-haber', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const sirket = $(this).data('sirket');
+        Swal.fire({
+            title: 'Yükleniyor...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+        fetch(`/Home/HaberBasliklariGetir?sirket=${encodeURIComponent(sirket)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success || !data.basliklar || data.basliklar.length === 0) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Haber Bulunamadı',
+                        text: `${sirket} ile ilgili başlık bulunamadı.`,
+                        footer: `<a href="${data.url}" target="_blank">Habertürk Kaynağına Git</a>`
+                    });
+                } else {
+                    let htmlList = '<ul style="text-align:left">';
+                    data.basliklar.forEach(h => {
+                        htmlList += `<li><b>${h}</b><br><small>Kaynak: ${data.kaynak}</small></li>`;
+                    });
+                    htmlList += '</ul>';
+                    Swal.fire({
+                        icon: 'success',
+                        title: sirket + ' Haberleri',
+                        html: htmlList,
+                        footer: `<a href="${data.url}" target="_blank">Habertürk Kaynağına Git</a>`
+                    });
+                }
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hata',
+                    text: 'Haberler alınamadı!'
+                });
+            });
     });
 </script>
