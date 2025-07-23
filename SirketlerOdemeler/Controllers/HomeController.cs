@@ -165,38 +165,23 @@ namespace SirketlerOdemeler.Controllers
                 var httpClientWithUA = _httpClientFactory.CreateClient();
                 httpClientWithUA.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
                 var html = await httpClientWithUA.GetStringAsync(urlHaberturk);
-
-                // Yeni HTML yapısına göre haberleri çek
-                var kartlar = Regex.Matches(html, "<div[^>]*data-type=\"box-type3-search\"[^>]*>[\\s\\S]*?</div>\\s*</div>");
+                var kartlar = Regex.Matches(html, "<div[^>]*data-type=\\\"box-type3-search\\\"[^>]*>[\\s\\S]*?</div>\\s*</div>", RegexOptions.IgnoreCase);
                 var basliklarWithImg = new System.Collections.Generic.List<object>();
-                
-                // Her kaynaktan 5'er haber al
                 int haberCount = 0;
                 const int MAX_HABER_PER_SOURCE = 5;
-                
                 foreach (Match kart in kartlar.Cast<Match>())
                 {
-                    if (haberCount >= MAX_HABER_PER_SOURCE) break; // En fazla 5 haber
-                    
+                    if (haberCount >= MAX_HABER_PER_SOURCE) break;
                     var kartHtml = kart.Value;
-                    
-                    // Başlık
                     var baslikMatch = Regex.Match(kartHtml, "<span[^>]*data-name=\"title\"[^>]*>(.*?)</span>", RegexOptions.IgnoreCase);
                     var baslik = baslikMatch.Success ? Regex.Replace(baslikMatch.Groups[1].Value, "<.*?>", string.Empty).Trim() : null;
-                    
-                    // Tarih
                     var dateMatch = Regex.Match(kartHtml, "<span[^>]*data-name=\"date\"[^>]*>(.*?)</span>", RegexOptions.IgnoreCase);
                     var date = dateMatch.Success ? Regex.Replace(dateMatch.Groups[1].Value, "<.*?>", string.Empty).Trim() : null;
-                    
-                    // URL
                     var urlMatch = Regex.Match(kartHtml, "<a[^>]*data-name=\"url\"[^>]*href=\"([^\"]+)\"", RegexOptions.IgnoreCase);
                     var link = urlMatch.Success ? "https://www.haberturk.com" + urlMatch.Groups[1].Value : null;
-                    
-                    // Resim
                     var imgMatch = Regex.Match(kartHtml, "<img[^>]*src=\"([^\"]+)\"[^>]*alt=\"([^\"]+)\"", RegexOptions.IgnoreCase);
                     var imgSrc = imgMatch.Success ? imgMatch.Groups[1].Value : null;
                     var imgAlt = imgMatch.Success ? imgMatch.Groups[2].Value : null;
-
                     if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
                     {
                         basliklarWithImg.Add(new {
@@ -210,7 +195,6 @@ namespace SirketlerOdemeler.Controllers
                         haberCount++;
                     }
                 }
-                
                 if (basliklarWithImg.Count == 0)
                 {
                     hatalar["Habertürk"] = "Hiç başlık bulunamadı veya sayfa yapısı değişmiş olabilir.";
@@ -233,48 +217,27 @@ namespace SirketlerOdemeler.Controllers
                 var httpClientWithUA = _httpClientFactory.CreateClient();
                 httpClientWithUA.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
                 var html = await httpClientWithUA.GetStringAsync(urlNtv);
-                
-                // Önce tüm kartları bul
-                var kartlar = Regex.Matches(html, "<div class=\"card card--md\">[\\s\\S]*?</div>\\s*</div>");
+                var kartlar = Regex.Matches(html, "<div class=\\\"card card--md\\\">[\\s\\S]*?</div>\\s*</div>", RegexOptions.IgnoreCase);
                 var basliklarWithImg = new System.Collections.Generic.List<object>();
-                
-                // Her kaynaktan 5'er haber al
                 int haberCount = 0;
                 const int MAX_HABER_PER_SOURCE = 5;
-                
                 foreach (Match kart in kartlar.Cast<Match>())
                 {
-                    if (haberCount >= MAX_HABER_PER_SOURCE) break; // En fazla 5 haber
-                    
+                    if (haberCount >= MAX_HABER_PER_SOURCE) break;
                     var kartHtml = kart.Value;
-                    
-                    // Card-link ile başlık ve link bilgisi
-                    var cardLinkMatch = Regex.Match(kartHtml, 
-                        "<a href=\"([^\"]+)\"[^>]*class=\"card-link[^\"]*\"[^>]*title=\"([^\"]+)\"", 
-                        RegexOptions.IgnoreCase);
-                    
-                    // Card-text-link ile başlık ve link bilgisi (alternatif)
-                    var cardTextLinkMatch = Regex.Match(kartHtml, 
-                        "<a href=\"([^\"]+)\"[^>]*class=\"card-text-link[^\"]*\"[^>]*title=\"([^\"]+)\"", 
-                        RegexOptions.IgnoreCase);
-                    
-                    // İki match'ten birini seç
+                    var cardLinkMatch = Regex.Match(kartHtml, "<a href=\"([^\"]+)\"[^>]*class=\"card-link[^\"]*\"[^>]*title=\"([^\"]+)\"", RegexOptions.IgnoreCase);
+                    var cardTextLinkMatch = Regex.Match(kartHtml, "<a href=\"([^\"]+)\"[^>]*class=\"card-text-link[^\"]*\"[^>]*title=\"([^\"]+)\"", RegexOptions.IgnoreCase);
                     var linkMatch = cardLinkMatch.Success ? cardLinkMatch : cardTextLinkMatch;
-                    
                     string link = null;
                     string baslik = null;
-                    
                     if (linkMatch.Success)
                     {
                         link = "https://www.ntv.com.tr" + linkMatch.Groups[1].Value;
                         baslik = linkMatch.Groups[2].Value.Trim();
                     }
-                    
-                    // Görsel bilgisi
                     var imgMatch = Regex.Match(kartHtml, "<img[^>]*src=\"([^\"]+)\"[^>]*alt=\"([^\"]+)\"", RegexOptions.IgnoreCase);
                     string imgSrc = null;
                     string imgAlt = null;
-                    
                     if (imgMatch.Success)
                     {
                         imgSrc = imgMatch.Groups[1].Value;
@@ -282,17 +245,14 @@ namespace SirketlerOdemeler.Controllers
                     }
                     else
                     {
-                        // Alternatif olarak source tag'ından görsel URL'i çek
                         var sourceMatch = Regex.Match(kartHtml, "<source[^>]*srcset=\"([^\"]+)\"", RegexOptions.IgnoreCase);
                         if (sourceMatch.Success)
                         {
-                            // URL'den ? işaretine kadar olan kısmı al (parametreleri temizle)
                             var srcsetValue = sourceMatch.Groups[1].Value;
                             var questionMarkIndex = srcsetValue.IndexOf('?');
                             imgSrc = questionMarkIndex > 0 ? srcsetValue.Substring(0, questionMarkIndex) : srcsetValue;
                         }
                     }
-                    
                     if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
                     {
                         basliklarWithImg.Add(new {
@@ -301,18 +261,15 @@ namespace SirketlerOdemeler.Controllers
                             imgSrc = imgSrc,
                             imgAlt = imgAlt,
                             link = link,
-                            tarih = (string)null // NTV'de tarih bilgisi yok
+                            tarih = (string)null
                         });
                         haberCount++;
                     }
                 }
-                
                 if (basliklarWithImg.Count == 0)
                 {
-                    // Hiç başlık bulunamadıysa, debug için HTML'in bir kısmını hata mesajına ekle
                     hatalar["NTV"] = $"Hiç başlık bulunamadı. Sayfa yapısı değişmiş olabilir veya şirket adı sayfada yok. URL: {urlNtv}";
                 }
-                
                 haberler["NTV"] = new { basliklar = basliklarWithImg, url = urlNtv };
                 kaynaklar.Add("NTV");
             }
@@ -321,6 +278,99 @@ namespace SirketlerOdemeler.Controllers
                 hatalar["NTV"] = $"Hata: {ex.Message}. URL: {urlNtv}";
                 haberler["NTV"] = new { basliklar = new System.Collections.Generic.List<object>(), url = urlNtv };
                 kaynaklar.Add("NTV");
+            }
+
+            // Haberler.com
+            string urlHaberlerCom = $"https://www.haberler.com/{Uri.EscapeDataString(sirket.ToLowerInvariant())}/";
+            try
+            {
+                var httpClientWithUA = _httpClientFactory.CreateClient();
+                httpClientWithUA.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+                var html = await httpClientWithUA.GetStringAsync(urlHaberlerCom);
+                
+                // Daha basit yaklaşım: Her kartı ayrı ayrı işle
+                var basliklarWithImg = new System.Collections.Generic.List<object>();
+                int haberCount = 0;
+                const int MAX_HABER_PER_SOURCE = 5;
+                
+                // Önce tüm kartları bul
+                var kartlarMatches = Regex.Matches(html, "<div class=\"new3card\"[^>]*>[\\s\\S]*?</div>\\s*</div>", RegexOptions.IgnoreCase);
+                
+                foreach (Match kart in kartlarMatches.Cast<Match>().Take(MAX_HABER_PER_SOURCE))
+                {
+                    var kartHtml = kart.Value;
+                    
+                    // Başlık
+                    var h3Match = Regex.Match(kartHtml, "<h3>(.*?)</h3>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    var baslik = h3Match.Success ? Regex.Replace(h3Match.Groups[1].Value, "<.*?>", string.Empty).Trim() : null;
+                    
+                    // Link
+                    var linkMatch = Regex.Match(kartHtml, "<a[^>]*href=\"([^\"]+)\"", RegexOptions.IgnoreCase);
+                    var link = linkMatch.Success ? "https://www.haberler.com" + linkMatch.Groups[1].Value : null;
+                    
+                    // Kartın içindeki ilk <img ...> etiketini bul
+                    var imgTagMatch = Regex.Match(kartHtml, "<img[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    string imgSrc = null, imgAlt = null;
+                    if (imgTagMatch.Success)
+                    {
+                        var imgTag = imgTagMatch.Value;
+                        var srcMatch = Regex.Match(imgTag, "src=\"([^\"]+)\"", RegexOptions.IgnoreCase);
+                        var altMatch = Regex.Match(imgTag, "alt=\"([^\"]*)\"", RegexOptions.IgnoreCase);
+                        imgSrc = srcMatch.Success ? srcMatch.Groups[1].Value : null;
+                        imgAlt = altMatch.Success ? altMatch.Groups[1].Value : null;
+                    }
+                    
+                    // Tarih
+                    var tarihMatch = Regex.Match(kartHtml, "<div class=\"hbbiText\">(.*?)</div>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    var tarih = tarihMatch.Success ? Regex.Replace(tarihMatch.Groups[1].Value, "<.*?>", string.Empty).Trim() : null;
+                    
+                    if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
+                    {
+                        basliklarWithImg.Add(new {
+                            kaynak = "Haberler.com",
+                            baslik = baslik,
+                            imgSrc = imgSrc,
+                            imgAlt = imgAlt,
+                            link = link,
+                            tarih = tarih
+                        });
+                    }
+                }
+                
+                // Yedek olarak eski yöntemi de dene
+                if (basliklarWithImg.Count == 0)
+                {
+                    var eskiMatches = Regex.Matches(html, "<a[^>]*class=\"hb-title\"[^>]*>(.*?)</a>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    foreach (Match m in eskiMatches)
+                    {
+                        var baslik = Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim();
+                        if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
+                        {
+                            basliklarWithImg.Add(new {
+                                kaynak = "Haberler.com",
+                                baslik = baslik,
+                                imgSrc = (string)null,
+                                imgAlt = (string)null,
+                                link = urlHaberlerCom,
+                                tarih = (string)null
+                            });
+                            if (basliklarWithImg.Count >= MAX_HABER_PER_SOURCE) break;
+                        }
+                    }
+                }
+                
+                if (basliklarWithImg.Count == 0)
+                {
+                    hatalar["Haberler.com"] = "Hiç başlık bulunamadı veya sayfa yapısı değişmiş olabilir.";
+                }
+                haberler["Haberler.com"] = new { basliklar = basliklarWithImg, url = urlHaberlerCom };
+                kaynaklar.Add("Haberler.com");
+            }
+            catch (Exception ex)
+            {
+                hatalar["Haberler.com"] = ex.Message;
+                haberler["Haberler.com"] = new { basliklar = new System.Collections.Generic.List<object>(), url = urlHaberlerCom };
+                kaynaklar.Add("Haberler.com");
             }
 
             bool anySuccess = haberler.Any(kv => ((dynamic)kv.Value).basliklar is System.Collections.ICollection list && list.Count > 0);
@@ -387,6 +437,52 @@ namespace SirketlerOdemeler.Controllers
                 catch (Exception ex)
                 {
                     hatalar["NTV"] = ex.Message;
+                }
+
+                // Haberler.com
+                string urlHaberlerCom = $"https://www.haberler.com/{Uri.EscapeDataString(sirket.ToLowerInvariant())}/";
+                try
+                {
+                    var html = await httpClient.GetStringAsync(urlHaberlerCom);
+                    var kartlar = Regex.Matches(html, "<div class=\"new3card\"[\\s\\S]*?</div>\\s*</div>", RegexOptions.IgnoreCase);
+                    var basliklar = new System.Collections.Generic.List<string>();
+                    int haberCount = 0;
+                    foreach (Match kart in kartlar)
+                    {
+                        if (haberCount >= 5) break;
+                        var kartHtml = kart.Value;
+                        var aMatch = Regex.Match(kartHtml, "<a[^>]*href=\"([^\"]+)\"[^>]*title=\"([^\"]+)\"[\\s\\S]*?<img[^>]*src=\"([^\"]+)\"[^>]*alt=\"([^\"]*)\"[\\s\\S]*?<h3>(.*?)</h3>[\\s\\S]*?<div class=\"hbbiText\">(.*?)</div>", RegexOptions.IgnoreCase);
+                        if (aMatch.Success)
+                        {
+                            var h3Baslik = Regex.Replace(aMatch.Groups[5].Value, "<.*?>", string.Empty).Trim();
+                            if (!string.IsNullOrWhiteSpace(h3Baslik) && h3Baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
+                            {
+                                basliklar.Add(h3Baslik);
+                                haberCount++;
+                            }
+                        }
+                    }
+                    if (basliklar.Count == 0)
+                    {
+                        var eskiMatches = Regex.Matches(html, "<a[^>]*class=\"hb-title\"[^>]*>(.*?)</a>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                        foreach (Match m in eskiMatches)
+                        {
+                            var baslik = Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim();
+                            if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
+                            {
+                                basliklar.Add(baslik);
+                                if (basliklar.Count >= 5) break;
+                            }
+                        }
+                    }
+                    if (basliklar.Count == 0)
+                        basliklar.Add("Burada bu şirket ile ilgili haber yok");
+                    haberler["Haberler.com"] = new { basliklar, url = urlHaberlerCom };
+                    kaynaklar.Add("Haberler.com");
+                }
+                catch (Exception ex)
+                {
+                    hatalar["Haberler.com"] = ex.Message;
                 }
 
                 bool anySuccess = haberler.Any(kv => ((dynamic)kv.Value).basliklar is System.Collections.Generic.List<string> list && list.Count > 0);

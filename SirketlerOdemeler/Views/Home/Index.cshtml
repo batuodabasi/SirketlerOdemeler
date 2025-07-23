@@ -392,9 +392,6 @@
                         if (row.link) {
                             buttons += `<a href="${row.link}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>`;
                         }
-                        if (row.kaynakUrl) {
-                            buttons += `<a href="${row.kaynakUrl}" target="_blank" class="btn btn-sm btn-info"><i class="bi bi-globe"></i> Kaynağa Git</a>`;
-                        }
                         return buttons;
                     }
                 }
@@ -549,7 +546,6 @@
                                     <td>${h.imgSrc ? `<img src="${h.imgSrc}" alt="${h.imgAlt || ''}" style="max-width:80px; max-height:50px;">` : '<span class="text-muted">Görsel yok</span>'}</td>
                                     <td>
                                         ${h.link ? `<a href="${h.link}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>` : ''}
-                                        ${kaynakUrl ? `<a href="${kaynakUrl}" target="_blank" class="btn btn-sm btn-info"><i class="bi bi-globe"></i> Kaynağa Git</a>` : ''}
                                     </td>
                                 </tr>`;
                                 haberCount++;
@@ -644,8 +640,7 @@
                 if (data && data.haberler) {
                     Object.keys(data.haberler).forEach(function(kaynak) {
                         const basliklar = data.haberler[kaynak].basliklar;
-                        const kaynakUrl = data.haberler[kaynak].url;
-                        // Her kaynaktan en fazla 5 haber göster
+                        // const kaynakUrl = data.haberler[kaynak].url; // KALDIRILDI
                         const MAX_HABER_PER_SOURCE = 5;
                         let haberCount = 0;
                         for (let i = 0; i < basliklar.length && haberCount < MAX_HABER_PER_SOURCE; i++) {
@@ -658,7 +653,6 @@
                                     <td>${h.imgSrc ? `<img src="${h.imgSrc}" alt="${h.imgAlt || ''}" style="max-width:80px; max-height:50px;">` : '<span class="text-muted">Görsel yok</span>'}</td>
                                     <td>
                                         ${h.link ? `<a href="${h.link}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>` : ''}
-                                        ${kaynakUrl ? `<a href="${kaynakUrl}" target="_blank" class="btn btn-sm btn-info"><i class="bi bi-globe"></i> Kaynağa Git</a>` : ''}
                                     </td>
                                 </tr>`;
                                 haberCount++;
@@ -730,7 +724,6 @@
         fetch('/Home/TumSirketlerHaberleriGetir')
             .then(res => res.json())
             .then(data => {
-                // Tablo HTML'ini oluştur
                 let tableHtml = `
                     <div class="table-responsive">
                         <table id="sweetAlertHaberTable" class="display table table-striped modern-table" style="width:100%;">
@@ -743,73 +736,63 @@
                                 </tr>
                             </thead>
                             <tbody>`;
-            
-                // Tüm şirketlerin haberlerini birleştir
-                let found = false;
-                Object.keys(data).forEach(function(sirket) {
-                    if (data[sirket] && data[sirket].haberler) {
-                        Object.keys(data[sirket].haberler).forEach(function(kaynak) {
-                            const haberler = data[sirket].haberler[kaynak];
-                            if (haberler && haberler.basliklar) {
-                                haberler.basliklar.forEach(function(baslik) {
-                                    if (typeof baslik === 'string' && baslik !== 'Burada bu şirket ile ilgili haber yok') {
-                                        found = true;
-                                        tableHtml += `<tr>
-                                            <td><strong>${sirket}</strong></td>
-                                            <td>${kaynak}</td>
-                                            <td>${baslik}</td>
-                                            <td>
-                                                ${haberler.url ? `<a href="${haberler.url}" target="_blank" class="btn btn-sm btn-info"><i class="bi bi-globe"></i> Kaynağa Git</a>` : ''}
-                                            </td>
-                                        </tr>`;
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-            
-                tableHtml += `
-                            </tbody>
-                        </table>
-                    </div>`;
-            
-                // Sonuç yoksa mesaj göster
-                if (!found) {
-                    tableHtml = '<div class="alert alert-info">Hiçbir şirket için haber bulunamadı.</div>';
-                }
-            
-                // SweetAlert2 ile göster
-                Swal.fire({
-                    icon: found ? 'success' : 'info',
-                    title: 'Tüm Şirketlerin Haberleri',
-                    html: tableHtml,
-                    width: '90%',
-                    didOpen: () => {
-                        // SweetAlert içinde DataTable'ı başlat
-                        if (found) {
-                            $('#sweetAlertHaberTable').DataTable({
-                                language: {
-                                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
-                                },
-                                responsive: true,
-                                paging: true,
-                                searching: true,
-                                ordering: true,
-                                info: true,
-                                lengthChange: true,
-                                pageLength: 10
+            let found = false;
+            Object.keys(data).forEach(function(sirket) {
+                if (data[sirket] && data[sirket].haberler) {
+                    Object.keys(data[sirket].haberler).forEach(function(kaynak) {
+                        const haberler = data[sirket].haberler[kaynak];
+                        if (haberler && haberler.basliklar) {
+                            haberler.basliklar.forEach(function(baslik) {
+                                if (typeof baslik === 'string' && baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                    found = true;
+                                    tableHtml += `<tr>
+                                        <td><strong>${sirket}</strong></td>
+                                        <td>${kaynak}</td>
+                                        <td>${baslik}</td>
+                                        <td></td>
+                                    </tr>`;
+                                }
                             });
                         }
-                    }
-                });
-            })
-            .catch(() => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Hata',
-                    text: 'Haberler alınırken bir hata oluştu.'
-                });
+                    });
+                }
             });
-    });
+            tableHtml += `
+                        </tbody>
+                    </table>
+                </div>`;
+            if (!found) {
+                tableHtml = '<div class="alert alert-info">Hiçbir şirket için haber bulunamadı.</div>';
+            }
+            Swal.fire({
+                icon: found ? 'success' : 'info',
+                title: 'Tüm Şirketlerin Haberleri',
+                html: tableHtml,
+                width: '90%',
+                didOpen: () => {
+                    if (found) {
+                        $('#sweetAlertHaberTable').DataTable({
+                            language: {
+                                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+                            },
+                            responsive: true,
+                            paging: true,
+                            searching: true,
+                            ordering: true,
+                            info: true,
+                            lengthChange: true,
+                            pageLength: 10
+                        });
+                    }
+                }
+            });
+        })
+        .catch(() => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hata',
+                text: 'Haberler alınırken bir hata oluştu.'
+            });
+        });
+});
 </script>
