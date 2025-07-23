@@ -27,7 +27,6 @@
         margin-right: 0.5rem;
         transition: background 0.2s, color 0.2s;
     }
-    .modern-tabs .nav-link.active {
         background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
         color: #fff;
         box-shadow: 0 2px 8px rgba(99,102,241,0.12);
@@ -106,60 +105,40 @@
     <!-- Sekmeler -->
     <ul class="nav nav-pills modern-tabs mb-3" id="tabMenu" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="ekle-tab" data-bs-toggle="pill" data-bs-target="#ekle" type="button" role="tab"><i class="bi bi-upload"></i> Ödeme Yükle</button>
-        </li>
-        <li class="nav-item" role="presentation">
             <button class="nav-link" id="liste-tab" data-bs-toggle="pill" data-bs-target="#liste" type="button" role="tab"><i class="bi bi-list-ul"></i> Tüm Ödemeler</button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="microsoft-tab" data-bs-toggle="pill" data-bs-target="#microsoft" type="button" role="tab">
                 <i class="bi bi-windows"></i> Microsoft
-                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Microsoft" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="oracle-tab" data-bs-toggle="pill" data-bs-target="#oracle" type="button" role="tab">
                 <i class="bi bi-database"></i> Oracle
-                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Oracle" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="nvidia-tab" data-bs-toggle="pill" data-bs-target="#nvidia" type="button" role="tab">
                 <i class="bi bi-gpu-card"></i> Nvidia
-                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Nvidia" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="ford-tab" data-bs-toggle="pill" data-bs-target="#ford" type="button" role="tab">
                 <i class="bi bi-truck"></i> Ford
-                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Ford" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="pegasus-tab" data-bs-toggle="pill" data-bs-target="#pegasus" type="button" role="tab">
                 <i class="bi bi-airplane"></i> Pegasus
-                <button class="btn btn-link p-0 ms-1 search-haber" data-sirket="Pegasus" style="vertical-align:middle;" title="Haberleri Ara"><i class="bi bi-search"></i></button>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tumhaberler-tab" type="button" role="tab">
+                <i class="bi bi-globe"></i> Tüm Şirketlerin Haberleri
             </button>
         </li>
     </ul>
     <div class="tab-content" id="tabContent">
-        <!-- Ödeme Yükle -->
-        <div class="tab-pane fade show active" id="ekle" role="tabpanel">
-            <div class="card modern-card p-4 mb-4">
-                <form id="uploadForm" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-building"></i> Şirket Kodu (SKod):</label>
-                        <input type="number" name="SKod" class="form-control form-control-lg" required placeholder="Örn: 1001" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-file-earmark-text"></i> Ödeme Dosyası (.txt):</label>
-                        <input type="file" name="Dosya" accept=".txt" class="form-control form-control-lg" required />
-                    </div>
-                    <button type="submit" class="btn btn-gradient w-100 py-2" style="background:linear-gradient(90deg,#6366f1 0%,#60a5fa 100%);color:#fff;font-weight:600;font-size:1.1rem;"><i class="bi bi-cloud-arrow-up"></i> Yükle</button>
-                </form>
-                <div id="mesaj" class="p-3"></div>
-            </div>
-        </div>
         <!-- Tüm Ödemeler -->
         <div class="tab-pane fade" id="liste" role="tabpanel">
             <div class="card modern-card p-4">
@@ -181,6 +160,7 @@
                     <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
                     <tbody></tbody>
                 </table>
+                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Microsoft"><i class="bi bi-newspaper"></i> Haberler</button>
             </div>
         </div>
         <div class="tab-pane fade" id="oracle" role="tabpanel">
@@ -189,6 +169,7 @@
                     <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
                     <tbody></tbody>
                 </table>
+                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Oracle"><i class="bi bi-newspaper"></i> Haberler</button>
             </div>
         </div>
         <div class="tab-pane fade" id="nvidia" role="tabpanel">
@@ -197,6 +178,7 @@
                     <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
                     <tbody></tbody>
                 </table>
+                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Nvidia"><i class="bi bi-newspaper"></i> Haberler</button>
             </div>
         </div>
         <div class="tab-pane fade" id="ford" role="tabpanel">
@@ -205,6 +187,7 @@
                     <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
                     <tbody></tbody>
                 </table>
+                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Ford"><i class="bi bi-newspaper"></i> Haberler</button>
             </div>
         </div>
         <div class="tab-pane fade" id="pegasus" role="tabpanel">
@@ -213,8 +196,27 @@
                     <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
                     <tbody></tbody>
                 </table>
+                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Pegasus"><i class="bi bi-newspaper"></i> Haberler</button>
             </div>
         </div>
+        <!-- Haberler Tablosu -->
+        <div class="tab-pane fade" id="haberler" role="tabpanel">
+            <div class="card modern-card p-4">
+                <h4 id="haberlerBaslik" class="mb-3">Şirket Haberleri</h4>
+                <table id="haberlerTablosu" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Kaynak <span class="modern-badge"><i class="bi bi-globe"></i></span></th>
+                            <th>Başlık <span class="modern-badge"><i class="bi bi-newspaper"></i></span></th>
+                            <th>Görsel <span class="modern-badge"><i class="bi bi-image"></i></span></th>
+                            <th>İşlemler <span class="modern-badge"><i class="bi bi-link"></i></span></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
     </div>
 </div>
 
@@ -225,7 +227,8 @@
 <!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    let table, tableMicrosoft, tableOracle, tableNvidia, tableFord, tablePegasus;
+    let table, tableMicrosoft, tableOracle, tableNvidia, tableFord, tablePegasus, tableHaberler;
+    let tumSirketHaberleriCache = null;
     // Özet kutusunu güncelleyen fonksiyon
     function ozetKutusuGuncelle() {
         fetch("/Home/OzetBilgi").then(res => res.json()).then(data => {
@@ -260,6 +263,153 @@
             }
         });
     }
+    // Tüm şirketlerin haberlerini çek ve cache'le
+    function tumSirketlerinHaberleriniGetirVeCachele(callback) {
+        if (tumSirketHaberleriCache) {
+            callback(tumSirketHaberleriCache);
+            return;
+        }
+        fetch('/Home/TumSirketlerHaberleriGetir')
+            .then(res => res.json())
+            .then(data => {
+                tumSirketHaberleriCache = data;
+                callback(data);
+            });
+    }
+    // Şirket sekmesinde haberleri göster
+    function sirketHaberleriniGoster(sirketAdi) {
+        // Önce cache'den bak
+        if (tumSirketHaberleriCache && tumSirketHaberleriCache[sirketAdi] && tumSirketHaberleriCache[sirketAdi].haberler) {
+            haberleriModalIleGoster(sirketAdi, tumSirketHaberleriCache[sirketAdi].haberler);
+        } else {
+            // Yoksa tekil endpointten çek
+            fetch(`/Home/HaberBasliklariGetir?sirket=${encodeURIComponent(sirketAdi)}`)
+                .then(res => res.json())
+                .then(data => {
+                    haberleriModalIleGoster(sirketAdi, data.haberler);
+                });
+        }
+    }
+    // Haberleri modal ile göster
+    function haberleriModalIleGoster(sirket, haberlerObjesi) {
+        let htmlList = '';
+        if (!haberlerObjesi || Object.keys(haberlerObjesi).length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: sirket + ' Haberleri',
+                text: sirket + ' ile ilgili başlık bulunamadı.'
+            });
+            return;
+        }
+        Object.keys(haberlerObjesi).forEach(function(kaynak) {
+            htmlList += `<h5 style='margin-top:1em;'>${kaynak}</h5>`;
+            const basliklar = haberlerObjesi[kaynak].basliklar;
+            htmlList += `<div style='display:flex;flex-wrap:wrap;gap:18px;margin-bottom:1.5em;'>`;
+            basliklar.forEach(function(h) {
+                if (h.baslik === 'Burada bu şirket ile ilgili haber yok') {
+                    htmlList += `<div style='background:#f3f4f6;border-radius:12px;padding:24px 32px;min-width:220px;max-width:260px;display:flex;align-items:center;justify-content:center;font-weight:600;color:#888;font-size:1.05em;'>${h.baslik}</div>`;
+                } else {
+                    htmlList += `<div style='background:#fff;box-shadow:0 2px 12px rgba(99,102,241,0.08);border-radius:12px;padding:12px 12px 10px 12px;min-width:220px;max-width:260px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;'>`;
+                    if (h.imgSrc) {
+                        htmlList += `<img src='${h.imgSrc}' alt='${h.imgAlt || ''}' style='width:100%;max-width:200px;max-height:120px;object-fit:cover;border-radius:8px 8px 0 0;margin-bottom:10px;'>`;
+                    }
+                    htmlList += `<div style='font-weight:600;font-size:1.05em;text-align:center;'>${h.baslik}</div>`;
+                    htmlList += `</div>`;
+                }
+            });
+            htmlList += `</div>`;
+            htmlList += `<div style='margin-bottom:0.5em;'><a href='${haberlerObjesi[kaynak].url}' target='_blank' style='color:#6366f1;font-weight:600;text-decoration:underline;'>${kaynak} Kaynağına Git</a></div>`;
+        });
+        Swal.fire({
+            icon: 'success',
+            title: sirket + ' Haberleri',
+            html: htmlList
+        });
+    }
+    
+    // Haberleri DataTable'a yükle
+    function haberleriDataTableIleGoster(sirket, data) {
+        // Önce başlığı güncelle
+        $('#haberlerBaslik').text(sirket + ' Haberleri');
+        
+        // Eğer tablo zaten oluşturulmuşsa, yeniden oluştur
+        if ($.fn.DataTable.isDataTable('#haberlerTablosu')) {
+            $('#haberlerTablosu').DataTable().destroy();
+        }
+        
+        // Tablo verilerini hazırla
+        let tableData = [];
+        
+        if (data && data.haberler) {
+            Object.keys(data.haberler).forEach(function(kaynak) {
+                const basliklar = data.haberler[kaynak].basliklar;
+                const kaynakUrl = data.haberler[kaynak].url;
+                
+                basliklar.forEach(function(h) {
+                    if (h.baslik && h.baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                        tableData.push({
+                            kaynak: kaynak,
+                            baslik: h.baslik,
+                            imgSrc: h.imgSrc,
+                            imgAlt: h.imgAlt,
+                            link: h.link,
+                            kaynakUrl: kaynakUrl
+                        });
+                    }
+                });
+            });
+        }
+        
+        // DataTable'ı oluştur
+        tableHaberler = $('#haberlerTablosu').DataTable({
+            data: tableData,
+            columns: [
+                { 
+                    data: 'kaynak',
+                    render: function(data, type, row) {
+                        return `<strong>${data}</strong>`;
+                    }
+                },
+                { 
+                    data: 'baslik',
+                    render: function(data, type, row) {
+                        return data;
+                    }
+                },
+                { 
+                    data: 'imgSrc',
+                    render: function(data, type, row) {
+                        if (data) {
+                            return `<img src="${data}" alt="${row.imgAlt || ''}" style="max-width:100px; max-height:60px;">`;
+                        }
+                        return '<span class="text-muted">Görsel yok</span>';
+                    }
+                },
+                { 
+                    data: null,
+                    render: function(data, type, row) {
+                        let buttons = '';
+                        if (row.link) {
+                            buttons += `<a href="${row.link}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>`;
+                        }
+                        if (row.kaynakUrl) {
+                            buttons += `<a href="${row.kaynakUrl}" target="_blank" class="btn btn-sm btn-info"><i class="bi bi-globe"></i> Kaynağa Git</a>`;
+                        }
+                        return buttons;
+                    }
+                }
+            ],
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+            },
+            responsive: true,
+            order: [[0, 'asc']]
+        });
+        
+        // Haberler tabına geçiş yap
+        $('#tabMenu button[data-bs-target="#haberler"]').tab('show');
+    }
+    
     $(document).ready(function () {
         // DataTables init
         table = $('#sonuclar').DataTable({ columns: [{ data: 'sirketAd' }, { data: 'odenenTutar' }] });
@@ -268,6 +418,20 @@
         tableNvidia = $('#nvidiaOdemeleri').DataTable({ columns: [{ data: 'sirketAd' }, { data: 'odenenTutar' }] });
         tableFord = $('#fordOdemeleri').DataTable({ columns: [{ data: 'sirketAd' }, { data: 'odenenTutar' }] });
         tablePegasus = $('#pegasusOdemeleri').DataTable({ columns: [{ data: 'sirketAd' }, { data: 'odenenTutar' }] });
+        
+        // Haberler tablosu - boş olarak başlat
+        tableHaberler = $('#haberlerTablosu').DataTable({
+            columns: [
+                { data: 'kaynak' },
+                { data: 'baslik' },
+                { data: 'imgSrc' },
+                { data: null }
+            ],
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+            }
+        });
+        
         // Sekmelere veri çekme
         $('button[data-bs-target="#liste"]').on('shown.bs.tab', () => {
             fetch("/Home/TumOdemeleriGetir").then(res => res.json()).then(data => {
@@ -336,7 +500,7 @@
         ozetKutusuGuncelle();
     });
 
-    // Sekme haber arama ikonları
+    // Şirket sekmelerinde haber arama ikonuna tıklanınca haberleri DataTable'da göster
     $(document).on('click', '.search-haber', function(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -349,32 +513,302 @@
         fetch(`/Home/HaberBasliklariGetir?sirket=${encodeURIComponent(sirket)}`)
             .then(res => res.json())
             .then(data => {
-                if (!data.success || !data.basliklar || data.basliklar.length === 0) {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Haber Bulunamadı',
-                        text: `${sirket} ile ilgili başlık bulunamadı.`,
-                        footer: `<a href="${data.url}" target="_blank">Habertürk Kaynağına Git</a>`
-                    });
-                } else {
-                    let htmlList = '<ul style="text-align:left">';
-                    data.basliklar.forEach(h => {
-                        htmlList += `<li><b>${h}</b><br><small>Kaynak: ${data.kaynak}</small></li>`;
-                    });
-                    htmlList += '</ul>';
-                    Swal.fire({
-                        icon: 'success',
-                        title: sirket + ' Haberleri',
-                        html: htmlList,
-                        footer: `<a href="${data.url}" target="_blank">Habertürk Kaynağına Git</a>`
+                // Tablo HTML'ini oluştur
+                let tableHtml = `
+                    <div class="table-responsive">
+                        <table id="sweetAlertHaberTable" class="display table table-striped modern-table" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th>Kaynak</th>
+                                    <th>Başlık</th>
+                                    <th>Görsel</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                // Veri var mı kontrol et
+                let found = false;
+                
+                if (data && data.haberler) {
+                    Object.keys(data.haberler).forEach(function(kaynak) {
+                        const basliklar = data.haberler[kaynak].basliklar;
+                        const kaynakUrl = data.haberler[kaynak].url;
+                        
+                        // Her kaynaktan en fazla 5 haber göster
+                        const MAX_HABER_PER_SOURCE = 5;
+                        let haberCount = 0;
+                        
+                        for (let i = 0; i < basliklar.length && haberCount < MAX_HABER_PER_SOURCE; i++) {
+                            const h = basliklar[i];
+                            if (h.baslik && h.baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                found = true;
+                                tableHtml += `<tr>
+                                    <td><strong>${kaynak}</strong></td>
+                                    <td>${h.baslik}</td>
+                                    <td>${h.imgSrc ? `<img src="${h.imgSrc}" alt="${h.imgAlt || ''}" style="max-width:80px; max-height:50px;">` : '<span class="text-muted">Görsel yok</span>'}</td>
+                                    <td>
+                                        ${h.link ? `<a href="${h.link}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>` : ''}
+                                        ${kaynakUrl ? `<a href="${kaynakUrl}" target="_blank" class="btn btn-sm btn-info"><i class="bi bi-globe"></i> Kaynağa Git</a>` : ''}
+                                    </td>
+                                </tr>`;
+                                haberCount++;
+                            }
+                        }
                     });
                 }
+                
+                tableHtml += `
+                            </tbody>
+                        </table>
+                    </div>`;
+                
+                // Hata mesajları varsa ekle
+                let errorHtml = '';
+                if (data && data.hatalar && Object.keys(data.hatalar).length > 0) {
+                    errorHtml += '<div class="alert alert-warning mt-3">';
+                    Object.keys(data.hatalar).forEach(function(kaynak) {
+                        errorHtml += `<p><strong>${kaynak}:</strong> ${data.hatalar[kaynak]}</p>`;
+                    });
+                    errorHtml += '</div>';
+                }
+                
+                // Sonuç yoksa mesaj göster
+                if (!found) {
+                    tableHtml = '<div class="alert alert-info">Bu şirket ile ilgili haber bulunamadı.</div>';
+                }
+                
+                // SweetAlert2 ile göster
+                Swal.fire({
+                    icon: found ? 'success' : 'info',
+                    title: sirket + ' Haberleri (Habertürk ve NTV\'den en fazla 5\'er haber)',
+                    html: tableHtml + errorHtml,
+                    width: '80%',
+                    didOpen: () => {
+                        // SweetAlert içinde DataTable'ı başlat
+                        if (found) {
+                            $('#sweetAlertHaberTable').DataTable({
+                                language: {
+                                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+                                },
+                                responsive: true,
+                                paging: false,
+                                searching: false,
+                                ordering: true,
+                                info: false,
+                                lengthChange: false
+                            });
+                        }
+                    }
+                });
             })
             .catch(() => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Hata',
-                    text: 'Haberler alınamadı!'
+                    text: 'Haberler alınırken bir hata oluştu.'
+                });
+            });
+    });
+
+    // Yeni: Şirket sekmesi içindeki "Haberler" butonuna tıklanınca haberleri göster
+    $(document).on('click', '.sirket-haber-btn', function() {
+        const sirket = $(this).data('sirket');
+        Swal.fire({
+            title: 'Yükleniyor...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+        fetch(`/Home/HaberBasliklariGetir?sirket=${encodeURIComponent(sirket)}`)
+            .then(res => res.json())
+            .then(data => {
+                // Tablo HTML'ini oluştur
+                let tableHtml = `
+                    <div class="table-responsive">
+                        <table id="sweetAlertHaberTable" class="display table table-striped modern-table" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th>Kaynak</th>
+                                    <th>Başlık</th>
+                                    <th>Görsel</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                // Veri var mı kontrol et
+                let found = false;
+                // let haberCount = 0; // Toplam haber sayısını takip et
+                // const MAX_HABER = 5; // Maksimum gösterilecek haber sayısı
+                
+                if (data && data.haberler) {
+                    Object.keys(data.haberler).forEach(function(kaynak) {
+                        const basliklar = data.haberler[kaynak].basliklar;
+                        const kaynakUrl = data.haberler[kaynak].url;
+                        // Her kaynaktan en fazla 5 haber göster
+                        const MAX_HABER_PER_SOURCE = 5;
+                        let haberCount = 0;
+                        for (let i = 0; i < basliklar.length && haberCount < MAX_HABER_PER_SOURCE; i++) {
+                            const h = basliklar[i];
+                            if (h.baslik && h.baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                found = true;
+                                tableHtml += `<tr>
+                                    <td><strong>${kaynak}</strong></td>
+                                    <td>${h.baslik}</td>
+                                    <td>${h.imgSrc ? `<img src="${h.imgSrc}" alt="${h.imgAlt || ''}" style="max-width:80px; max-height:50px;">` : '<span class="text-muted">Görsel yok</span>'}</td>
+                                    <td>
+                                        ${h.link ? `<a href="${h.link}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>` : ''}
+                                        ${kaynakUrl ? `<a href="${kaynakUrl}" target="_blank" class="btn btn-sm btn-info"><i class="bi bi-globe"></i> Kaynağa Git</a>` : ''}
+                                    </td>
+                                </tr>`;
+                                haberCount++;
+                            }
+                        }
+                    });
+                }
+                
+                tableHtml += `
+                            </tbody>
+                        </table>
+                    </div>`;
+                
+                // Hata mesajları varsa ekle
+                let errorHtml = '';
+                if (data && data.hatalar && Object.keys(data.hatalar).length > 0) {
+                    errorHtml += '<div class="alert alert-warning mt-3">';
+                    Object.keys(data.hatalar).forEach(function(kaynak) {
+                        errorHtml += `<p><strong>${kaynak}:</strong> ${data.hatalar[kaynak]}</p>`;
+                    });
+                    errorHtml += '</div>';
+                }
+                
+                // Sonuç yoksa mesaj göster
+                if (!found) {
+                    tableHtml = '<div class="alert alert-info">Bu şirket ile ilgili haber bulunamadı.</div>';
+                }
+                
+                // SweetAlert2 ile göster
+                Swal.fire({
+                    icon: found ? 'success' : 'info',
+                    title: sirket + ' Haberleri (En fazla 5 haber)',
+                    html: tableHtml + errorHtml,
+                    width: '80%',
+                    didOpen: () => {
+                        // SweetAlert içinde DataTable'ı başlat
+                        if (found) {
+                            $('#sweetAlertHaberTable').DataTable({
+                                language: {
+                                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+                                },
+                                responsive: true,
+                                paging: false, // Sayfalama yok, zaten en fazla 5 haber gösteriyoruz
+                                searching: false, // Arama yok, az sayıda haber var
+                                ordering: true,
+                                info: false, // Bilgi satırı yok
+                                lengthChange: false
+                            });
+                        }
+                    }
+                });
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hata',
+                    text: 'Haberler alınırken bir hata oluştu.'
+                });
+            });
+    });
+
+    // Tüm şirketlerin haberleri butonu
+    $('#tumhaberler-tab').on('click', function() {
+        Swal.fire({
+            title: 'Yükleniyor...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+        fetch('/Home/TumSirketlerHaberleriGetir')
+            .then(res => res.json())
+            .then(data => {
+                // Tablo HTML'ini oluştur
+                let tableHtml = `
+                    <div class="table-responsive">
+                        <table id="sweetAlertHaberTable" class="display table table-striped modern-table" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th>Şirket</th>
+                                    <th>Kaynak</th>
+                                    <th>Başlık</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+            
+                // Tüm şirketlerin haberlerini birleştir
+                let found = false;
+                Object.keys(data).forEach(function(sirket) {
+                    if (data[sirket] && data[sirket].haberler) {
+                        Object.keys(data[sirket].haberler).forEach(function(kaynak) {
+                            const haberler = data[sirket].haberler[kaynak];
+                            if (haberler && haberler.basliklar) {
+                                haberler.basliklar.forEach(function(baslik) {
+                                    if (typeof baslik === 'string' && baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                        found = true;
+                                        tableHtml += `<tr>
+                                            <td><strong>${sirket}</strong></td>
+                                            <td>${kaynak}</td>
+                                            <td>${baslik}</td>
+                                            <td>
+                                                ${haberler.url ? `<a href="${haberler.url}" target="_blank" class="btn btn-sm btn-info"><i class="bi bi-globe"></i> Kaynağa Git</a>` : ''}
+                                            </td>
+                                        </tr>`;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            
+                tableHtml += `
+                            </tbody>
+                        </table>
+                    </div>`;
+            
+                // Sonuç yoksa mesaj göster
+                if (!found) {
+                    tableHtml = '<div class="alert alert-info">Hiçbir şirket için haber bulunamadı.</div>';
+                }
+            
+                // SweetAlert2 ile göster
+                Swal.fire({
+                    icon: found ? 'success' : 'info',
+                    title: 'Tüm Şirketlerin Haberleri',
+                    html: tableHtml,
+                    width: '90%',
+                    didOpen: () => {
+                        // SweetAlert içinde DataTable'ı başlat
+                        if (found) {
+                            $('#sweetAlertHaberTable').DataTable({
+                                language: {
+                                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
+                                },
+                                responsive: true,
+                                paging: true,
+                                searching: true,
+                                ordering: true,
+                                info: true,
+                                lengthChange: true,
+                                pageLength: 10
+                            });
+                        }
+                    }
+                });
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hata',
+                    text: 'Haberler alınırken bir hata oluştu.'
                 });
             });
     });
