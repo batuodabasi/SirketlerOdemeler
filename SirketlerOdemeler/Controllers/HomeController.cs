@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace SirketlerOdemeler.Controllers
 {
@@ -579,7 +580,7 @@ namespace SirketlerOdemeler.Controllers
                         new {
                             parts = new[]
                             {
-                                new { text = haberBaslik + " bu başlığı analiz et" }
+                                new { text = haberBaslik + " başlığını çok kısa şekilde yorumlar mısın?" }
                             }
                         }
                     }
@@ -628,6 +629,64 @@ namespace SirketlerOdemeler.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<JsonResult> HaberleriTopluKaydet([FromBody] List<HaberEkleDto> haberler)
+        {
+            try
+            {
+                foreach (var dto in haberler)
+                {
+                    var sirket = await _context.Sirketler.FirstOrDefaultAsync(s => s.SirketAd == dto.sirketAd);
+                    if (sirket == null) continue;
+                    string haberIcerik = "";
+                    if (!string.IsNullOrWhiteSpace(dto.haberUrl) && !dto.haberUrl.Contains("google.com/search"))
+                    {
+                        var httpClient = _httpClientFactory.CreateClient();
+                        var html = await httpClient.GetStringAsync(dto.haberUrl);
+
+                        // 1. H2 başlığı dene
+                        var icerikMatch = Regex.Match(html, "<div[^>]*class=\"[^\"]*\"[^>]*>[\\s\\S]*?<h2[^>]*>(.*?)</h2>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                        if (icerikMatch.Success)
+                            haberIcerik = Regex.Replace(icerikMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
+                        else
+                        {
+                            // 2. <p> paragrafı dene
+                            var pMatch = Regex.Match(html, "<p[^>]*>(.*?)</p>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                            if (pMatch.Success)
+                                haberIcerik = Regex.Replace(pMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
+                            else
+                            {
+                                // 3. <article> etiketi dene
+                                var articleMatch = Regex.Match(html, "<article[^>]*>(.*?)</article>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                                if (articleMatch.Success)
+                                    haberIcerik = Regex.Replace(articleMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
+                                else
+                                    haberIcerik = "İçerik çekilemedi.";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        haberIcerik = "Haber başlığı: " + dto.haberBaslik;
+                    }
+                    var yeniHaber = new Haberler
+                    {
+                        SKod = sirket.SKod,
+                        HaberBaslik = dto.haberBaslik,
+                        HaberIcerik = haberIcerik,
+                        HaberGorsel = dto.haberGorsel
+                    };
+                    _context.Haberler.Add(yeniHaber);
+                }
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Seçilen haberler başarıyla kaydedildi." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Hata: " + ex.Message });
+            }
+        }
+
         //Şirket bazı verilerin geldiği yer.
         [HttpGet]
         public async Task<JsonResult> MicrosoftSirketiOdemeleri()
@@ -658,5 +717,13 @@ namespace SirketlerOdemeler.Controllers
         {
             return await SirketOdemeleri("Pegasus");
         }
+    }
+
+    public class HaberEkleDto
+    {
+        public string sirketAd { get; set; }
+        public string haberBaslik { get; set; }
+        public string haberUrl { get; set; }
+        public string haberGorsel { get; set; }
     }
 }

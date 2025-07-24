@@ -91,22 +91,15 @@
 </style>
 
 <div class="container mt-5 mb-5">
-    <div class="welcome-banner mb-4">
-        <i class="bi bi-cash-coin"></i>
-        <div>
-            <h2 class="mb-1" style="font-weight:700;">@ViewData["Title"]</h2>
-            <div style="font-size:1.1rem;opacity:0.85;">Hoş geldiniz! Şirket ödemelerinizi kolayca yönetin ve takip edin.</div>
-        </div>
-    </div>
-    <div class="summary-box mb-4">
-        <div><i class="bi bi-building"></i> Toplam Şirket: <span id="summarySirket">-</span></div>
-        <div><i class="bi bi-wallet2"></i> Toplam Ödeme: <span id="summaryOdeme">-</span></div>
+    <!-- Büyük Google Haber Arama Kutusu -->
+    <div class="d-flex justify-content-center align-items-center" style="margin-top: 32px; margin-bottom: 32px;">
+        <form id="bigGoogleSearchForm" style="width: 100%; max-width: 520px; display: flex; align-items: center; gap: 12px;">
+            <input type="text" id="bigGoogleSearchInput" placeholder="Şirket veya konu arayın..." style="flex:1; padding: 18px 24px; border-radius: 2rem; border: 1.5px solid #bfc9d9; font-size: 1.25rem; box-shadow: 0 2px 12px rgba(99,102,241,0.07); outline: none;" />
+            <button type="submit" class="btn btn-primary" style="border-radius: 2rem; padding: 14px 32px; font-size: 1.15rem; font-weight: 700; box-shadow: 0 2px 8px rgba(99,102,241,0.10);"><i class="bi bi-search"></i> Ara</button>
+        </form>
     </div>
     <!-- Sekmeler -->
     <ul class="nav nav-pills modern-tabs mb-3" id="tabMenu" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="liste-tab" data-bs-toggle="pill" data-bs-target="#liste" type="button" role="tab"><i class="bi bi-list-ul"></i> Tüm Ödemeler</button>
-        </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="microsoft-tab" data-bs-toggle="pill" data-bs-target="#microsoft" type="button" role="tab">
                 <i class="bi bi-windows"></i> Microsoft
@@ -139,64 +132,90 @@
         </li>
     </ul>
     <div class="tab-content" id="tabContent">
-        <!-- Tüm Ödemeler -->
-        <div class="tab-pane fade" id="liste" role="tabpanel">
+        <!-- Şirket Sekmeleri -->
+        <div class="tab-pane fade" id="microsoft" role="tabpanel">
             <div class="card modern-card p-4">
-                <table id="sonuclar" class="display table table-striped modern-table mt-3" style="width:100%;">
+                <button class="btn btn-success mb-2" id="microsoftSecilenleriEkleBtn"><i class="bi bi-plus-circle"></i> Seçilenleri Ekle</button>
+                <table id="microsoftHaberlerTablosu" class="display table table-striped modern-table mt-3" style="width:100%;">
                     <thead>
                         <tr>
-                            <th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th>
-                            <th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th>
+                            <th><input type="checkbox" id="microsoftHaberlerCheckAll" /></th>
+                            <th>Kaynak <span class="modern-badge"><i class="bi bi-globe"></i></span></th>
+                            <th>Başlık <span class="modern-badge"><i class="bi bi-newspaper"></i></span></th>
+                            <th>Görsel <span class="modern-badge"><i class="bi bi-image"></i></span></th>
+                            <th>Link <span class="modern-badge"><i class="bi bi-link"></i></span></th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
-        <!-- Şirket Sekmeleri -->
-        <div class="tab-pane fade" id="microsoft" role="tabpanel">
-            <div class="card modern-card p-4">
-                <table id="microsoftOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
-                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
-                    <tbody></tbody>
-                </table>
-                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Microsoft"><i class="bi bi-newspaper"></i> Haberler</button>
-            </div>
-        </div>
         <div class="tab-pane fade" id="oracle" role="tabpanel">
             <div class="card modern-card p-4">
-                <table id="oracleOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
-                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
+                <button class="btn btn-success mb-2" id="oracleSecilenleriEkleBtn"><i class="bi bi-plus-circle"></i> Seçilenleri Ekle</button>
+                <table id="oracleHaberlerTablosu" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="oracleHaberlerCheckAll" /></th>
+                            <th>Kaynak <span class="modern-badge"><i class="bi bi-globe"></i></span></th>
+                            <th>Başlık <span class="modern-badge"><i class="bi bi-newspaper"></i></span></th>
+                            <th>Görsel <span class="modern-badge"><i class="bi bi-image"></i></span></th>
+                            <th>Link <span class="modern-badge"><i class="bi bi-link"></i></span></th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
-                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Oracle"><i class="bi bi-newspaper"></i> Haberler</button>
             </div>
         </div>
         <div class="tab-pane fade" id="nvidia" role="tabpanel">
             <div class="card modern-card p-4">
-                <table id="nvidiaOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
-                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
+                <button class="btn btn-success mb-2" id="nvidiaSecilenleriEkleBtn"><i class="bi bi-plus-circle"></i> Seçilenleri Ekle</button>
+                <table id="nvidiaHaberlerTablosu" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="nvidiaHaberlerCheckAll" /></th>
+                            <th>Kaynak <span class="modern-badge"><i class="bi bi-globe"></i></span></th>
+                            <th>Başlık <span class="modern-badge"><i class="bi bi-newspaper"></i></span></th>
+                            <th>Görsel <span class="modern-badge"><i class="bi bi-image"></i></span></th>
+                            <th>Link <span class="modern-badge"><i class="bi bi-link"></i></span></th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
-                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Nvidia"><i class="bi bi-newspaper"></i> Haberler</button>
             </div>
         </div>
         <div class="tab-pane fade" id="ford" role="tabpanel">
             <div class="card modern-card p-4">
-                <table id="fordOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
-                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
+                <button class="btn btn-success mb-2" id="fordSecilenleriEkleBtn"><i class="bi bi-plus-circle"></i> Seçilenleri Ekle</button>
+                <table id="fordHaberlerTablosu" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="fordHaberlerCheckAll" /></th>
+                            <th>Kaynak <span class="modern-badge"><i class="bi bi-globe"></i></span></th>
+                            <th>Başlık <span class="modern-badge"><i class="bi bi-newspaper"></i></span></th>
+                            <th>Görsel <span class="modern-badge"><i class="bi bi-image"></i></span></th>
+                            <th>Link <span class="modern-badge"><i class="bi bi-link"></i></span></th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
-                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Ford"><i class="bi bi-newspaper"></i> Haberler</button>
             </div>
         </div>
         <div class="tab-pane fade" id="pegasus" role="tabpanel">
             <div class="card modern-card p-4">
-                <table id="pegasusOdemeleri" class="display table table-striped modern-table mt-3" style="width:100%;">
-                    <thead><tr><th>Şirket Adı <span class="modern-badge"><i class="bi bi-building"></i></span></th><th>Ödenen Tutar <span class="modern-badge"><i class="bi bi-currency-lira"></i></span></th></tr></thead>
+                <button class="btn btn-success mb-2" id="pegasusSecilenleriEkleBtn"><i class="bi bi-plus-circle"></i> Seçilenleri Ekle</button>
+                <table id="pegasusHaberlerTablosu" class="display table table-striped modern-table mt-3" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="pegasusHaberlerCheckAll" /></th>
+                            <th>Kaynak <span class="modern-badge"><i class="bi bi-globe"></i></span></th>
+                            <th>Başlık <span class="modern-badge"><i class="bi bi-newspaper"></i></span></th>
+                            <th>Görsel <span class="modern-badge"><i class="bi bi-image"></i></span></th>
+                            <th>Link <span class="modern-badge"><i class="bi bi-link"></i></span></th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
-                <button class="btn btn-info mt-3 sirket-haber-btn" data-sirket="Pegasus"><i class="bi bi-newspaper"></i> Haberler</button>
             </div>
         </div>
         <!-- Haberler Tablosu -->
@@ -429,12 +448,239 @@
             }
         });
         
-        // Sekmelere veri çekme
-        $('button[data-bs-target="#liste"]').on('shown.bs.tab', () => {
-            fetch("/Home/TumOdemeleriGetir").then(res => res.json()).then(data => {
-                table.clear().rows.add(data).draw();
-            });
+        // Microsoft tabı açıldığında haberleri çek
+        let tableMicrosoftHaberler = $('#microsoftHaberlerTablosu').DataTable({
+            columns: [
+                { data: null, orderable: false, render: function(data, type, row, meta) {
+                    return `<input type="checkbox" class="haber-checkbox" data-rowindex="${meta.row}">`;
+                }},
+                { data: 'kaynak' },
+                { data: 'baslik' },
+                { data: 'imgSrc', render: function(data, type, row) {
+                    if (data) return `<img src="${data}" alt="" style="max-width:100px; max-height:60px;">`;
+                    return '<span class="text-muted">Görsel yok</span>';
+                }},
+                { data: 'link', render: function(data, type, row) {
+                    let btns = '';
+                    if (data) btns += `<a href="${data}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>`;
+                    // Yapay Zekaya Yorumlat butonu
+                    btns += `<button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${row.kaynak}" data-baslik="${row.baslik}" data-url="${data}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>`;
+                    return btns;
+                }}
+            ],
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json' },
+            responsive: true
         });
+        $('button[data-bs-target="#microsoft"]').on('shown.bs.tab', function() {
+            fetch('/Home/HaberBasliklariGetir?sirket=Microsoft')
+                .then(res => res.json())
+                .then(data => {
+                    let tableData = [];
+                    if (data && data.haberler) {
+                        Object.keys(data.haberler).forEach(function(kaynak) {
+                            const basliklar = data.haberler[kaynak].basliklar;
+                            basliklar.slice(0,5).forEach(function(h) {
+                                if (h.baslik && h.baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                    tableData.push({
+                                        kaynak: kaynak,
+                                        baslik: h.baslik,
+                                        imgSrc: h.imgSrc,
+                                        link: h.link
+                                    });
+                                }
+                            });
+                        });
+                    }
+                    tableMicrosoftHaberler.clear().rows.add(tableData).draw();
+                });
+        });
+        
+        // Oracle tabı haberler
+        let tableOracleHaberler = $('#oracleHaberlerTablosu').DataTable({
+            columns: [
+                { data: null, orderable: false, render: function(data, type, row, meta) {
+                    return `<input type="checkbox" class="haber-checkbox" data-rowindex="${meta.row}">`;
+                }},
+                { data: 'kaynak' },
+                { data: 'baslik' },
+                { data: 'imgSrc', render: function(data, type, row) {
+                    if (data) return `<img src="${data}" alt="" style="max-width:100px; max-height:60px;">`;
+                    return '<span class="text-muted">Görsel yok</span>';
+                }},
+                { data: 'link', render: function(data, type, row) {
+                    let btns = '';
+                    if (data) btns += `<a href="${data}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>`;
+                    // Yapay Zekaya Yorumlat butonu
+                    btns += `<button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${row.kaynak}" data-baslik="${row.baslik}" data-url="${data}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>`;
+                    return btns;
+                }}
+            ],
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json' },
+            responsive: true
+        });
+        $('button[data-bs-target="#oracle"]').on('shown.bs.tab', function() {
+            fetch('/Home/HaberBasliklariGetir?sirket=Oracle')
+                .then(res => res.json())
+                .then(data => {
+                    let tableData = [];
+                    if (data && data.haberler) {
+                        Object.keys(data.haberler).forEach(function(kaynak) {
+                            const basliklar = data.haberler[kaynak].basliklar;
+                            basliklar.slice(0,5).forEach(function(h) {
+                                if (h.baslik && h.baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                    tableData.push({
+                                        kaynak: kaynak,
+                                        baslik: h.baslik,
+                                        imgSrc: h.imgSrc,
+                                        link: h.link
+                                    });
+                                }
+                            });
+                        });
+                    }
+                    tableOracleHaberler.clear().rows.add(tableData).draw();
+                });
+        });
+        // Nvidia tabı haberler
+        let tableNvidiaHaberler = $('#nvidiaHaberlerTablosu').DataTable({
+            columns: [
+                { data: null, orderable: false, render: function(data, type, row, meta) {
+                    return `<input type="checkbox" class="haber-checkbox" data-rowindex="${meta.row}">`;
+                }},
+                { data: 'kaynak' },
+                { data: 'baslik' },
+                { data: 'imgSrc', render: function(data, type, row) {
+                    if (data) return `<img src="${data}" alt="" style="max-width:100px; max-height:60px;">`;
+                    return '<span class="text-muted">Görsel yok</span>';
+                }},
+                { data: 'link', render: function(data, type, row) {
+                    let btns = '';
+                    if (data) btns += `<a href="${data}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>`;
+                    // Yapay Zekaya Yorumlat butonu
+                    btns += `<button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${row.kaynak}" data-baslik="${row.baslik}" data-url="${data}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>`;
+                    return btns;
+                }}
+            ],
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json' },
+            responsive: true
+        });
+        $('button[data-bs-target="#nvidia"]').on('shown.bs.tab', function() {
+            fetch('/Home/HaberBasliklariGetir?sirket=Nvidia')
+                .then(res => res.json())
+                .then(data => {
+                    let tableData = [];
+                    if (data && data.haberler) {
+                        Object.keys(data.haberler).forEach(function(kaynak) {
+                            const basliklar = data.haberler[kaynak].basliklar;
+                            basliklar.slice(0,5).forEach(function(h) {
+                                if (h.baslik && h.baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                    tableData.push({
+                                        kaynak: kaynak,
+                                        baslik: h.baslik,
+                                        imgSrc: h.imgSrc,
+                                        link: h.link
+                                    });
+                                }
+                            });
+                        });
+                    }
+                    tableNvidiaHaberler.clear().rows.add(tableData).draw();
+                });
+        });
+        // Ford tabı haberler
+        let tableFordHaberler = $('#fordHaberlerTablosu').DataTable({
+            columns: [
+                { data: null, orderable: false, render: function(data, type, row, meta) {
+                    return `<input type="checkbox" class="haber-checkbox" data-rowindex="${meta.row}">`;
+                }},
+                { data: 'kaynak' },
+                { data: 'baslik' },
+                { data: 'imgSrc', render: function(data, type, row) {
+                    if (data) return `<img src="${data}" alt="" style="max-width:100px; max-height:60px;">`;
+                    return '<span class="text-muted">Görsel yok</span>';
+                }},
+                { data: 'link', render: function(data, type, row) {
+                    let btns = '';
+                    if (data) btns += `<a href="${data}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>`;
+                    // Yapay Zekaya Yorumlat butonu
+                    btns += `<button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${row.kaynak}" data-baslik="${row.baslik}" data-url="${data}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>`;
+                    return btns;
+                }}
+            ],
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json' },
+            responsive: true
+        });
+        $('button[data-bs-target="#ford"]').on('shown.bs.tab', function() {
+            fetch('/Home/HaberBasliklariGetir?sirket=Ford')
+                .then(res => res.json())
+                .then(data => {
+                    let tableData = [];
+                    if (data && data.haberler) {
+                        Object.keys(data.haberler).forEach(function(kaynak) {
+                            const basliklar = data.haberler[kaynak].basliklar;
+                            basliklar.slice(0,5).forEach(function(h) {
+                                if (h.baslik && h.baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                    tableData.push({
+                                        kaynak: kaynak,
+                                        baslik: h.baslik,
+                                        imgSrc: h.imgSrc,
+                                        link: h.link
+                                    });
+                                }
+                            });
+                        });
+                    }
+                    tableFordHaberler.clear().rows.add(tableData).draw();
+                });
+        });
+        // Pegasus tabı haberler
+        let tablePegasusHaberler = $('#pegasusHaberlerTablosu').DataTable({
+            columns: [
+                { data: null, orderable: false, render: function(data, type, row, meta) {
+                    return `<input type="checkbox" class="haber-checkbox" data-rowindex="${meta.row}">`;
+                }},
+                { data: 'kaynak' },
+                { data: 'baslik' },
+                { data: 'imgSrc', render: function(data, type, row) {
+                    if (data) return `<img src="${data}" alt="" style="max-width:100px; max-height:60px;">`;
+                    return '<span class="text-muted">Görsel yok</span>';
+                }},
+                { data: 'link', render: function(data, type, row) {
+                    let btns = '';
+                    if (data) btns += `<a href="${data}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>`;
+                    // Yapay Zekaya Yorumlat butonu
+                    btns += `<button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${row.kaynak}" data-baslik="${row.baslik}" data-url="${data}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>`;
+                    return btns;
+                }}
+            ],
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json' },
+            responsive: true
+        });
+        $('button[data-bs-target="#pegasus"]').on('shown.bs.tab', function() {
+            fetch('/Home/HaberBasliklariGetir?sirket=Pegasus')
+                .then(res => res.json())
+                .then(data => {
+                    let tableData = [];
+                    if (data && data.haberler) {
+                        Object.keys(data.haberler).forEach(function(kaynak) {
+                            const basliklar = data.haberler[kaynak].basliklar;
+                            basliklar.slice(0,5).forEach(function(h) {
+                                if (h.baslik && h.baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                    tableData.push({
+                                        kaynak: kaynak,
+                                        baslik: h.baslik,
+                                        imgSrc: h.imgSrc,
+                                        link: h.link
+                                    });
+                                }
+                            });
+                        });
+                    }
+                    tablePegasusHaberler.clear().rows.add(tableData).draw();
+                });
+        });
+        
+        // Sekmelere veri çekme
         $('button[data-bs-target="#microsoft"]').on('shown.bs.tab', () => {
             fetch("/Home/MicrosoftSirketiOdemeleri").then(res => res.json()).then(data => {
                 tableMicrosoft.clear().rows.add(data).draw();
@@ -495,6 +741,230 @@
             });
         });
         ozetKutusuGuncelle();
+
+        // Büyük Google haber arama kutusu
+        $('#bigGoogleSearchForm').on('submit', function(e) {
+            e.preventDefault();
+            const query = $('#bigGoogleSearchInput').val().trim();
+            if (query.length > 0) {
+                window.open('https://www.google.com/search?q=' + encodeURIComponent(query + ' haberleri'), '_blank');
+            }
+        });
+
+        // CheckAll fonksiyonu
+        $('#microsoftHaberlerCheckAll').on('change', function() {
+            const checked = $(this).is(':checked');
+            $('#microsoftHaberlerTablosu .haber-checkbox').prop('checked', checked);
+        });
+        // Seçilenleri Ekle butonu
+        $('#microsoftSecilenleriEkleBtn').on('click', function() {
+            let secilenler = [];
+            tableMicrosoftHaberler.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                const node = this.node();
+                const checkbox = $(node).find('.haber-checkbox');
+                if (checkbox.is(':checked')) {
+                    const data = this.data();
+                    secilenler.push({
+                        sirketAd: 'Microsoft',
+                        haberBaslik: data.baslik,
+                        haberUrl: data.link,
+                        haberGorsel: data.imgSrc
+                    });
+                }
+            });
+            if (secilenler.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Uyarı', text: 'Lütfen en az bir haber seçin.' });
+                return;
+            }
+            $.ajax({
+                url: '/Home/HaberleriTopluKaydet',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(secilenler),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({ icon: 'success', title: 'Başarılı', text: response.message });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Hata', text: response.message });
+                    }
+                },
+                error: function() {
+                    Swal.fire({ icon: 'error', title: 'Hata', text: 'Haberler kaydedilirken bir hata oluştu.' });
+                }
+            });
+        });
+
+        // CheckAll fonksiyonu
+        $('#oracleHaberlerCheckAll').on('change', function() {
+            const checked = $(this).is(':checked');
+            $('#oracleHaberlerTablosu .haber-checkbox').prop('checked', checked);
+        });
+        // Seçilenleri Ekle butonu
+        $('#oracleSecilenleriEkleBtn').on('click', function() {
+            let secilenler = [];
+            tableOracleHaberler.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                const node = this.node();
+                const checkbox = $(node).find('.haber-checkbox');
+                if (checkbox.is(':checked')) {
+                    const data = this.data();
+                    secilenler.push({
+                        sirketAd: 'Oracle',
+                        haberBaslik: data.baslik,
+                        haberUrl: data.link,
+                        haberGorsel: data.imgSrc
+                    });
+                }
+            });
+            if (secilenler.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Uyarı', text: 'Lütfen en az bir haber seçin.' });
+                return;
+            }
+            $.ajax({
+                url: '/Home/HaberleriTopluKaydet',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(secilenler),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({ icon: 'success', title: 'Başarılı', text: response.message });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Hata', text: response.message });
+                    }
+                },
+                error: function() {
+                    Swal.fire({ icon: 'error', title: 'Hata', text: 'Haberler kaydedilirken bir hata oluştu.' });
+                }
+            });
+        });
+
+        // CheckAll fonksiyonu
+        $('#nvidiaHaberlerCheckAll').on('change', function() {
+            const checked = $(this).is(':checked');
+            $('#nvidiaHaberlerTablosu .haber-checkbox').prop('checked', checked);
+        });
+        // Seçilenleri Ekle butonu
+        $('#nvidiaSecilenleriEkleBtn').on('click', function() {
+            let secilenler = [];
+            tableNvidiaHaberler.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                const node = this.node();
+                const checkbox = $(node).find('.haber-checkbox');
+                if (checkbox.is(':checked')) {
+                    const data = this.data();
+                    secilenler.push({
+                        sirketAd: 'Nvidia',
+                        haberBaslik: data.baslik,
+                        haberUrl: data.link,
+                        haberGorsel: data.imgSrc
+                    });
+                }
+            });
+            if (secilenler.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Uyarı', text: 'Lütfen en az bir haber seçin.' });
+                return;
+            }
+            $.ajax({
+                url: '/Home/HaberleriTopluKaydet',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(secilenler),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({ icon: 'success', title: 'Başarılı', text: response.message });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Hata', text: response.message });
+                    }
+                },
+                error: function() {
+                    Swal.fire({ icon: 'error', title: 'Hata', text: 'Haberler kaydedilirken bir hata oluştu.' });
+                }
+            });
+        });
+
+        // CheckAll fonksiyonu
+        $('#fordHaberlerCheckAll').on('change', function() {
+            const checked = $(this).is(':checked');
+            $('#fordHaberlerTablosu .haber-checkbox').prop('checked', checked);
+        });
+        // Seçilenleri Ekle butonu
+        $('#fordSecilenleriEkleBtn').on('click', function() {
+            let secilenler = [];
+            tableFordHaberler.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                const node = this.node();
+                const checkbox = $(node).find('.haber-checkbox');
+                if (checkbox.is(':checked')) {
+                    const data = this.data();
+                    secilenler.push({
+                        sirketAd: 'Ford',
+                        haberBaslik: data.baslik,
+                        haberUrl: data.link,
+                        haberGorsel: data.imgSrc
+                    });
+                }
+            });
+            if (secilenler.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Uyarı', text: 'Lütfen en az bir haber seçin.' });
+                return;
+            }
+            $.ajax({
+                url: '/Home/HaberleriTopluKaydet',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(secilenler),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({ icon: 'success', title: 'Başarılı', text: response.message });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Hata', text: response.message });
+                    }
+                },
+                error: function() {
+                    Swal.fire({ icon: 'error', title: 'Hata', text: 'Haberler kaydedilirken bir hata oluştu.' });
+                }
+            });
+        });
+
+        // CheckAll fonksiyonu
+        $('#pegasusHaberlerCheckAll').on('change', function() {
+            const checked = $(this).is(':checked');
+            $('#pegasusHaberlerTablosu .haber-checkbox').prop('checked', checked);
+        });
+        // Seçilenleri Ekle butonu
+        $('#pegasusSecilenleriEkleBtn').on('click', function() {
+            let secilenler = [];
+            tablePegasusHaberler.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                const node = this.node();
+                const checkbox = $(node).find('.haber-checkbox');
+                if (checkbox.is(':checked')) {
+                    const data = this.data();
+                    secilenler.push({
+                        sirketAd: 'Pegasus',
+                        haberBaslik: data.baslik,
+                        haberUrl: data.link,
+                        haberGorsel: data.imgSrc
+                    });
+                }
+            });
+            if (secilenler.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Uyarı', text: 'Lütfen en az bir haber seçin.' });
+                return;
+            }
+            $.ajax({
+                url: '/Home/HaberleriTopluKaydet',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(secilenler),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({ icon: 'success', title: 'Başarılı', text: response.message });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Hata', text: response.message });
+                    }
+                },
+                error: function() {
+                    Swal.fire({ icon: 'error', title: 'Hata', text: 'Haberler kaydedilirken bir hata oluştu.' });
+                }
+            });
+        });
     });
 
     // Şirket sekmelerinde haber arama ikonuna tıklanınca haberleri DataTable'da göster
