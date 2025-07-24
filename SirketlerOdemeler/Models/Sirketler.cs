@@ -15,6 +15,5 @@ namespace SirketlerOdemeler.Models
         [EmailAddress]
         public string SirketMail { get; set; }
 
-
     }
 }

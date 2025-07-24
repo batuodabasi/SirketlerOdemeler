@@ -497,6 +497,137 @@ namespace SirketlerOdemeler.Controllers
             return Json(sonuc);
         }
 
+        [HttpPost]
+        public async Task<JsonResult> HaberKaydet(string sirketAd, string haberBaslik, string haberUrl, string haberGorsel)
+        {
+            if (string.IsNullOrWhiteSpace(sirketAd) || string.IsNullOrWhiteSpace(haberBaslik) || string.IsNullOrWhiteSpace(haberUrl))
+            {
+                return Json(new { success = false, message = "Şirket adı, haber başlığı ve URL gereklidir." });
+            }
+
+            try
+            {
+                // Şirket kodunu bul
+                var sirket = await _context.Sirketler.FirstOrDefaultAsync(s => s.SirketAd == sirketAd);
+                if (sirket == null)
+                {
+                    return Json(new { success = false, message = "Şirket bulunamadı." });
+                }
+
+                // Haber içeriğini çek
+                string haberIcerik = "";
+                
+                // Google araması URL'i mi kontrol et
+                if (haberUrl.Contains("google.com/search"))
+                {
+                    // Google aramasından içerik çekmek yerine başlığı içerik olarak kullan
+                    haberIcerik = "Haber başlığı: " + haberBaslik;
+                }
+                else
+                {
+                    // Normal haber URL'inden içerik çek
+                    var httpClientWithUA = _httpClientFactory.CreateClient();
+                    httpClientWithUA.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+                    var html = await httpClientWithUA.GetStringAsync(haberUrl);
+
+                    // Haber içeriğini çıkar
+                    var icerikMatch = Regex.Match(html, "<div[^>]*class=\"[^\"]*\"[^>]*>[\\s\\S]*?<h2[^>]*>(.*?)</h2>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    if (icerikMatch.Success)
+                    {
+                        haberIcerik = Regex.Replace(icerikMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
+                    }
+                    else
+                    {
+                        haberIcerik = "İçerik çekilemedi.";
+                    }
+                }
+
+                // Haberi kaydet
+                var yeniHaber = new Haberler
+                {
+                    SKod = sirket.SKod,
+                    HaberBaslik = haberBaslik,
+                    HaberIcerik = haberIcerik,
+                    HaberGorsel = haberGorsel
+                };
+
+                _context.Haberler.Add(yeniHaber);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Haber başarıyla kaydedildi." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Haber kaydedilirken hata oluştu: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> YapayZekaYorumlat(string haberBaslik)
+        {
+            if (string.IsNullOrWhiteSpace(haberBaslik))
+                return Json(new { success = false, message = "Başlık gerekli." });
+
+            try
+            {
+                var apiKey = "AIzaSyAYlPijAICSq9OcdHtJY9-f_KU8dItZkXA";
+                var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
+                var payload = new
+                {
+                    contents = new[]
+                    {
+                        new {
+                            parts = new[]
+                            {
+                                new { text = haberBaslik + " bu başlığı analiz et" }
+                            }
+                        }
+                    }
+                };
+                var httpClient = _httpClientFactory.CreateClient();
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync(url, content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Json(new { success = false, message = "API hatası: " + responseString });
+                }
+                // Gemini cevabını çöz
+                using var doc = System.Text.Json.JsonDocument.Parse(responseString);
+                var root = doc.RootElement;
+                string yorum = root.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
+                return Json(new { success = true, yorum });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> HaberYapayZekaYorumEkle(string haberBaslik, string yorum)
+        {
+            if (string.IsNullOrWhiteSpace(haberBaslik) || string.IsNullOrWhiteSpace(yorum))
+                return Json(new { success = false, message = "Başlık ve yorum gerekli." });
+
+            try
+            {
+                var haber = await _context.Haberler.FirstOrDefaultAsync(h => h.HaberBaslik == haberBaslik);
+                if (haber == null)
+                {
+                    return Json(new { success = false, message = "Haber bulunamadı." });
+                }
+                haber.HaberYapayZekaYorum = yorum;
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Yapay zeka yorumu başarıyla eklendi." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Yorum eklenirken hata oluştu: " + ex.Message });
+            }
+        }
+
         //Şirket bazı verilerin geldiği yer.
         [HttpGet]
         public async Task<JsonResult> MicrosoftSirketiOdemeleri()

@@ -18,5 +18,9 @@ namespace SirketlerOdemeler.Models
 
         [MaxLength(600)]
         public string HaberIcerik { get; set; }
+
+        public string HaberGorsel { get; set; }
+
+        public string? HaberYapayZekaYorum { get; set; }
     }
 }

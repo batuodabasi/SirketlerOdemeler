@@ -546,6 +546,8 @@
                                     <td>${h.imgSrc ? `<img src="${h.imgSrc}" alt="${h.imgAlt || ''}" style="max-width:80px; max-height:50px;">` : '<span class="text-muted">Görsel yok</span>'}</td>
                                     <td>
                                         ${h.link ? `<a href="${h.link}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>` : ''}
+                                        ${h.link ? `<button class="btn btn-sm btn-success haber-kaydet-btn" data-sirket="${sirket}" data-baslik="${h.baslik}" data-url="${h.link}" data-imgsrc="${h.imgSrc}"><i class="bi bi-save"></i> Ekle</button>` : ''}
+                                        ${h.link ? `<button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${sirket}" data-baslik="${h.baslik}" data-url="${h.link}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>` : ''}
                                     </td>
                                 </tr>`;
                                 haberCount++;
@@ -631,16 +633,10 @@
                                 </tr>
                             </thead>
                             <tbody>`;
-                
-                // Veri var mı kontrol et
                 let found = false;
-                // let haberCount = 0; // Toplam haber sayısını takip et
-                // const MAX_HABER = 5; // Maksimum gösterilecek haber sayısı
-                
                 if (data && data.haberler) {
                     Object.keys(data.haberler).forEach(function(kaynak) {
                         const basliklar = data.haberler[kaynak].basliklar;
-                        // const kaynakUrl = data.haberler[kaynak].url; // KALDIRILDI
                         const MAX_HABER_PER_SOURCE = 5;
                         let haberCount = 0;
                         for (let i = 0; i < basliklar.length && haberCount < MAX_HABER_PER_SOURCE; i++) {
@@ -653,6 +649,8 @@
                                     <td>${h.imgSrc ? `<img src="${h.imgSrc}" alt="${h.imgAlt || ''}" style="max-width:80px; max-height:50px;">` : '<span class="text-muted">Görsel yok</span>'}</td>
                                     <td>
                                         ${h.link ? `<a href="${h.link}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>` : ''}
+                                        ${h.link ? `<button class="btn btn-sm btn-success haber-kaydet-btn" data-sirket="${sirket}" data-baslik="${h.baslik}" data-url="${h.link}" data-imgsrc="${h.imgSrc}"><i class="bi bi-save"></i> Ekle</button>` : ''}
+                                        ${h.link ? `<button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${sirket}" data-baslik="${h.baslik}" data-url="${h.link}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>` : ''}
                                     </td>
                                 </tr>`;
                                 haberCount++;
@@ -660,13 +658,10 @@
                         }
                     });
                 }
-                
                 tableHtml += `
                             </tbody>
                         </table>
                     </div>`;
-                
-                // Hata mesajları varsa ekle
                 let errorHtml = '';
                 if (data && data.hatalar && Object.keys(data.hatalar).length > 0) {
                     errorHtml += '<div class="alert alert-warning mt-3">';
@@ -675,30 +670,25 @@
                     });
                     errorHtml += '</div>';
                 }
-                
-                // Sonuç yoksa mesaj göster
                 if (!found) {
                     tableHtml = '<div class="alert alert-info">Bu şirket ile ilgili haber bulunamadı.</div>';
                 }
-                
-                // SweetAlert2 ile göster
                 Swal.fire({
                     icon: found ? 'success' : 'info',
                     title: sirket + ' Haberleri (En fazla 5 haber)',
                     html: tableHtml + errorHtml,
                     width: '80%',
                     didOpen: () => {
-                        // SweetAlert içinde DataTable'ı başlat
                         if (found) {
                             $('#sweetAlertHaberTable').DataTable({
                                 language: {
                                     url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json'
                                 },
                                 responsive: true,
-                                paging: false, // Sayfalama yok, zaten en fazla 5 haber gösteriyoruz
-                                searching: false, // Arama yok, az sayıda haber var
+                                paging: false,
+                                searching: false,
                                 ordering: true,
-                                info: false, // Bilgi satırı yok
+                                info: false,
                                 lengthChange: false
                             });
                         }
@@ -749,7 +739,11 @@
                                         <td><strong>${sirket}</strong></td>
                                         <td>${kaynak}</td>
                                         <td>${baslik}</td>
-                                        <td></td>
+                                        <td>
+                                            <a href="https://www.google.com/search?q=${encodeURIComponent(sirket + ' ' + baslik)}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>
+                                            <button class="btn btn-sm btn-success haber-kaydet-btn" data-sirket="${sirket}" data-baslik="${baslik}" data-url="https://www.google.com/search?q=${encodeURIComponent(sirket + ' ' + baslik)}"><i class="bi bi-save"></i> Ekle</button>
+                                            <button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${sirket}" data-baslik="${baslik}" data-url="https://www.google.com/search?q=${encodeURIComponent(sirket + ' ' + baslik)}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>
+                                        </td>
                                     </tr>`;
                                 }
                             });
@@ -794,5 +788,113 @@
                 text: 'Haberler alınırken bir hata oluştu.'
             });
         });
-});
+    });
+
+    // Add click event for yapay-zeka-btn
+    $(document).on('click', '.yapay-zeka-btn', function() {
+        const sirketAdi = $(this).data('sirket');
+        const haberBaslik = $(this).data('baslik');
+        const haberUrl = $(this).data('url');
+        Swal.fire({
+            title: 'Yapay Zeka Yorumlatılıyor...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+        $.ajax({
+            url: '/Home/YapayZekaYorumlat',
+            type: 'POST',
+            data: { haberBaslik: haberBaslik },
+            success: function(response) {
+                if (response.success) {
+                    // Yorum geldikten sonra veritabanına ekle
+                    $.ajax({
+                        url: '/Home/HaberYapayZekaYorumEkle',
+                        type: 'POST',
+                        data: { haberBaslik: haberBaslik, yorum: response.yorum },
+                        success: function(res2) {
+                            // İkinci istek başarılıysa kullanıcıya göster
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Yapay Zeka Yorumu',
+                                html: `<div><b>Şirket:</b> ${sirketAdi}<br><b>Başlık:</b> ${haberBaslik}<br><b>URL:</b> <a href='${haberUrl}' target='_blank'>Habere Git</a></div><hr><div style='white-space:pre-line;'>${response.yorum}</div><hr><div style='color:green;font-size:0.95em;'>Yapay zeka yorumu veritabanına kaydedildi.</div>`
+                            });
+                        },
+                        error: function() {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Yapay Zeka Yorumu',
+                                html: `<div><b>Şirket:</b> ${sirketAdi}<br><b>Başlık:</b> ${haberBaslik}<br><b>URL:</b> <a href='${haberUrl}' target='_blank'>Habere Git</a></div><hr><div style='white-space:pre-line;'>${response.yorum}</div><hr><div style='color:orange;font-size:0.95em;'>Yapay zeka yorumu veritabanına kaydedilemedi.</div>`
+                            });
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Hata',
+                        text: response.message
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hata',
+                    text: 'Yapay zeka servisine erişilemedi.'
+                });
+            }
+        });
+    });
+
+    // Add click event for haber-kaydet-btn
+    $(document).on('click', '.haber-kaydet-btn', function() {
+        const sirketAdi = $(this).data('sirket');
+        const haberBaslik = $(this).data('baslik');
+        const haberUrl = $(this).data('url');
+        // Görseli bulmaya çalış (aynı satırdaki imgSrc)
+        let haberGorsel = null;
+        // Eğer data-imgsrc varsa doğrudan al
+        if ($(this).data('imgsrc')) {
+            haberGorsel = $(this).data('imgsrc');
+        } else {
+            // Yoksa, aynı satırdaki img etiketinden bul
+            const $tr = $(this).closest('tr');
+            const $img = $tr.find('img');
+            if ($img.length > 0) {
+                haberGorsel = $img.attr('src');
+            }
+        }
+        // Haberi kaydet
+        $.ajax({
+            url: '/Home/HaberKaydet',
+            type: 'POST',
+            data: {
+                sirketAd: sirketAdi,
+                haberBaslik: haberBaslik,
+                haberUrl: haberUrl,
+                haberGorsel: haberGorsel
+            },
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Başarılı',
+                        text: response.message
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Hata',
+                        text: response.message
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hata',
+                    text: 'Haber kaydedilirken bir hata oluştu.'
+                });
+            }
+        });
+    });
 </script>
