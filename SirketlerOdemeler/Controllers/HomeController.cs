@@ -374,6 +374,52 @@ namespace SirketlerOdemeler.Controllers
                 kaynaklar.Add("Haberler.com");
             }
 
+            // Hürriyet
+            string urlHurriyet = $"https://www.hurriyet.com.tr/haberleri/{Uri.EscapeDataString(sirket.ToLowerInvariant())}";
+            try
+            {
+                var httpClientWithUA = _httpClientFactory.CreateClient();
+                httpClientWithUA.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+                var html = await httpClientWithUA.GetStringAsync(urlHurriyet);
+
+                // <div class="tag__list__item"> bloklarını bul
+                var kartlar = Regex.Matches(html, "<div class=\"tag__list__item\"[\\s\\S]*?<a href=\"([^\"]+)\"[^>]*class=\"tag__list__item--cover\"[^>]*>\\s*<img[^>]*src=\"([^\"]+)\"[^>]*>.*?<h3>(.*?)</h3>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                var basliklarWithImg = new System.Collections.Generic.List<object>();
+                int haberCount = 0;
+                const int MAX_HABER_PER_SOURCE = 5;
+                foreach (Match kart in kartlar)
+                {
+                    if (haberCount >= MAX_HABER_PER_SOURCE) break;
+                    var link = kart.Groups[1].Value.StartsWith("http") ? kart.Groups[1].Value : "https://www.hurriyet.com.tr" + kart.Groups[1].Value;
+                    var imgSrc = kart.Groups[2].Value;
+                    var baslik = Regex.Replace(kart.Groups[3].Value, "<.*?>", string.Empty).Trim();
+                    if (!string.IsNullOrWhiteSpace(baslik))
+                    {
+                        basliklarWithImg.Add(new {
+                            kaynak = "Hürriyet",
+                            baslik = baslik,
+                            imgSrc = imgSrc,
+                            imgAlt = (string)null,
+                            link = link,
+                            tarih = (string)null
+                        });
+                        haberCount++;
+                    }
+                }
+                if (basliklarWithImg.Count == 0)
+                {
+                    hatalar["Hürriyet"] = "Hiç başlık bulunamadı veya sayfa yapısı değişmiş olabilir.";
+                }
+                haberler["Hürriyet"] = new { basliklar = basliklarWithImg, url = urlHurriyet };
+                kaynaklar.Add("Hürriyet");
+            }
+            catch (Exception ex)
+            {
+                hatalar["Hürriyet"] = ex.Message;
+                haberler["Hürriyet"] = new { basliklar = new System.Collections.Generic.List<object>(), url = urlHurriyet };
+                kaynaklar.Add("Hürriyet");
+            }
+
             bool anySuccess = haberler.Any(kv => ((dynamic)kv.Value).basliklar is System.Collections.ICollection list && list.Count > 0);
             return Json(new
             {
@@ -486,6 +532,35 @@ namespace SirketlerOdemeler.Controllers
                     hatalar["Haberler.com"] = ex.Message;
                 }
 
+                // Hürriyet
+                string urlHurriyet = $"https://www.hurriyet.com.tr/haberleri/{Uri.EscapeDataString(sirket.ToLowerInvariant())}";
+                try
+                {
+                    var html = await httpClient.GetStringAsync(urlHurriyet);
+                    var kartlar = Regex.Matches(html, "<a[^>]*href=\"([^\"]+)\"[^>]*class=\"news-title-link\"[^>]*>(.*?)</a>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    var basliklar = new System.Collections.Generic.List<string>();
+                    int haberCount = 0;
+                    foreach (Match kart in kartlar)
+                    {
+                        if (haberCount >= 5) break;
+                        var link = kart.Groups[1].Value.StartsWith("http") ? kart.Groups[1].Value : "https://www.hurriyet.com.tr" + kart.Groups[1].Value;
+                        var baslik = Regex.Replace(kart.Groups[2].Value, "<.*?>", string.Empty).Trim();
+                        if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
+                        {
+                            basliklar.Add(baslik);
+                            haberCount++;
+                        }
+                    }
+                    if (basliklar.Count == 0)
+                        basliklar.Add("Burada bu şirket ile ilgili haber yok");
+                    haberler["Hürriyet"] = new { basliklar, url = urlHurriyet };
+                    kaynaklar.Add("Hürriyet");
+                }
+                catch (Exception ex)
+                {
+                    hatalar["Hürriyet"] = ex.Message;
+                }
+
                 bool anySuccess = haberler.Any(kv => ((dynamic)kv.Value).basliklar is System.Collections.Generic.List<string> list && list.Count > 0);
                 sonuc[sirket] = new
                 {
@@ -496,6 +571,45 @@ namespace SirketlerOdemeler.Controllers
                 };
             }
             return Json(sonuc);
+        }
+
+        // Gemini API ile başlık yorumu alma yardımcı fonksiyonu
+        private async Task<string> GetYapayZekaYorumAsync(string haberBaslik)
+        {
+            try
+            {
+                var apiKey = "AIzaSyAYlPijAICSq9OcdHtJY9-f_KU8dItZkXA";
+                var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
+                var payload = new
+                {
+                    contents = new[]
+                    {
+                        new {
+                            parts = new[]
+                            {
+                                new { text = haberBaslik + " başlığını çok kısa şekilde yorumlar mısın?" }
+                            }
+                        }
+                    }
+                };
+                var httpClient = _httpClientFactory.CreateClient();
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync(url, content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+                using var doc = System.Text.Json.JsonDocument.Parse(responseString);
+                var root = doc.RootElement;
+                string yorum = root.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
+                return yorum;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         [HttpPost]
@@ -543,13 +657,17 @@ namespace SirketlerOdemeler.Controllers
                     }
                 }
 
+                // Yapay zeka yorumu al
+                string yapayZekaYorum = await GetYapayZekaYorumAsync(haberBaslik);
+
                 // Haberi kaydet
                 var yeniHaber = new Haberler
                 {
                     SKod = sirket.SKod,
                     HaberBaslik = haberBaslik,
                     HaberIcerik = haberIcerik,
-                    HaberGorsel = haberGorsel
+                    HaberGorsel = haberGorsel,
+                    HaberYapayZekaYorum = yapayZekaYorum
                 };
 
                 _context.Haberler.Add(yeniHaber);
@@ -560,49 +678,6 @@ namespace SirketlerOdemeler.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Haber kaydedilirken hata oluştu: " + ex.Message });
-            }
-        }
-
-        [HttpPost]
-        public async Task<JsonResult> YapayZekaYorumlat(string haberBaslik)
-        {
-            if (string.IsNullOrWhiteSpace(haberBaslik))
-                return Json(new { success = false, message = "Başlık gerekli." });
-
-            try
-            {
-                var apiKey = "AIzaSyAYlPijAICSq9OcdHtJY9-f_KU8dItZkXA";
-                var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
-                var payload = new
-                {
-                    contents = new[]
-                    {
-                        new {
-                            parts = new[]
-                            {
-                                new { text = haberBaslik + " başlığını çok kısa şekilde yorumlar mısın?" }
-                            }
-                        }
-                    }
-                };
-                var httpClient = _httpClientFactory.CreateClient();
-                var json = System.Text.Json.JsonSerializer.Serialize(payload);
-                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-                var response = await httpClient.PostAsync(url, content);
-                var responseString = await response.Content.ReadAsStringAsync();
-                if (!response.IsSuccessStatusCode)
-                {
-                    return Json(new { success = false, message = "API hatası: " + responseString });
-                }
-                // Gemini cevabını çöz
-                using var doc = System.Text.Json.JsonDocument.Parse(responseString);
-                var root = doc.RootElement;
-                string yorum = root.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
-                return Json(new { success = true, yorum });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
             }
         }
 
@@ -669,12 +744,15 @@ namespace SirketlerOdemeler.Controllers
                     {
                         haberIcerik = "Haber başlığı: " + dto.haberBaslik;
                     }
+                    // Yapay zeka yorumu al
+                    string yapayZekaYorum = await GetYapayZekaYorumAsync(dto.haberBaslik);
                     var yeniHaber = new Haberler
                     {
                         SKod = sirket.SKod,
                         HaberBaslik = dto.haberBaslik,
                         HaberIcerik = haberIcerik,
-                        HaberGorsel = dto.haberGorsel
+                        HaberGorsel = dto.haberGorsel,
+                        HaberYapayZekaYorum = yapayZekaYorum
                     };
                     _context.Haberler.Add(yeniHaber);
                 }
@@ -684,6 +762,27 @@ namespace SirketlerOdemeler.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Hata: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> YapayZekaYorumlat(string haberBaslik)
+        {
+            if (string.IsNullOrWhiteSpace(haberBaslik))
+                return Json(new { success = false, message = "Başlık gerekli." });
+
+            try
+            {
+                string yorum = await GetYapayZekaYorumAsync(haberBaslik);
+                if (string.IsNullOrWhiteSpace(yorum))
+                {
+                    return Json(new { success = false, message = "Yapay zeka yorumu alınamadı." });
+                }
+                return Json(new { success = true, yorum });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
 

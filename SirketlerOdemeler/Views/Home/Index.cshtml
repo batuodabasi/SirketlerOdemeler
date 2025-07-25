@@ -410,6 +410,8 @@
                         let buttons = '';
                         if (row.link) {
                             buttons += `<a href="${row.link}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>`;
+                            // Yapay Zekaya Yorumlat butonu
+                            buttons += `<button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${row.kaynak}" data-baslik="${row.baslik}" data-url="${row.link}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>`;
                         }
                         return buttons;
                     }
@@ -746,9 +748,93 @@
         $('#bigGoogleSearchForm').on('submit', function(e) {
             e.preventDefault();
             const query = $('#bigGoogleSearchInput').val().trim();
-            if (query.length > 0) {
-                window.open('https://www.google.com/search?q=' + encodeURIComponent(query + ' haberleri'), '_blank');
+            if (query.length === 0) return;
+            // SweetAlert yükleniyor ekranı
+            Swal.fire({
+                title: 'Haberler Yükleniyor...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            const tabId = 'arama-' + query.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            const tabTitle = query + ' Haberleri';
+            // Eğer sekme zaten varsa, içeriğini güncelle
+            if ($('#' + tabId + '-tab').length === 0) {
+                // Sekme ekle
+                $(
+                    `<li class="nav-item" role="presentation">
+                        <button class="nav-link" id="${tabId}-tab" data-bs-toggle="pill" data-bs-target="#${tabId}" type="button" role="tab">${tabTitle}</button>
+                    </li>`
+                ).insertAfter($('#pegasus-tab').parent());
+                // İçerik ekle
+                $('#tabContent').append(
+                    `<div class="tab-pane fade" id="${tabId}" role="tabpanel">
+                        <div class="card modern-card p-4">
+                            <table id="${tabId}HaberlerTablosu" class="display table table-striped modern-table mt-3" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Kaynak <span class="modern-badge"><i class="bi bi-globe"></i></span></th>
+                                        <th>Başlık <span class="modern-badge"><i class="bi bi-newspaper"></i></span></th>
+                                        <th>Görsel <span class="modern-badge"><i class="bi bi-image"></i></span></th>
+                                        <th>Link <span class="modern-badge"><i class="bi bi-link"></i></span></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>`
+                );
             }
+            // Sekmeyi aktif yap
+            $('#tabMenu button').removeClass('active');
+            $('#tabContent .tab-pane').removeClass('active show');
+            $('#' + tabId + '-tab').addClass('active');
+            $('#' + tabId).addClass('active show');
+            // Haberleri çek ve tabloya yükle
+            fetch('/Home/HaberBasliklariGetir?sirket=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    Swal.close();
+                    let tableData = [];
+                    if (data && data.haberler) {
+                        Object.keys(data.haberler).forEach(function(kaynak) {
+                            const basliklar = data.haberler[kaynak].basliklar;
+                            basliklar.slice(0,5).forEach(function(h) {
+                                if (h.baslik && h.baslik !== 'Burada bu şirket ile ilgili haber yok') {
+                                    tableData.push({
+                                        kaynak: kaynak,
+                                        baslik: h.baslik,
+                                        imgSrc: h.imgSrc,
+                                        link: h.link
+                                    });
+                                }
+                            });
+                        });
+                    }
+                    // Eğer tablo zaten oluşturulmuşsa, yeniden oluştur
+                    if ($.fn.DataTable.isDataTable('#' + tabId + 'HaberlerTablosu')) {
+                        $('#' + tabId + 'HaberlerTablosu').DataTable().clear().rows.add(tableData).draw();
+                    } else {
+                        $('#' + tabId + 'HaberlerTablosu').DataTable({
+                            data: tableData,
+                            columns: [
+                                { data: 'kaynak', render: function(data) { return `<strong>${data}</strong>`; } },
+                                { data: 'baslik' },
+                                { data: 'imgSrc', render: function(data, type, row) {
+                                    if (data) return `<img src="${data}" alt="" style="max-width:100px; max-height:60px;">`;
+                                    return '<span class="text-muted">Görsel yok</span>';
+                                }},
+                                { data: 'link', render: function(data, type, row) {
+                                let btns = '';
+                                if (data) btns += `<a href="${data}" target="_blank" class="btn btn-sm btn-primary me-1"><i class="bi bi-link"></i> Habere Git</a>`;
+                                if (data) btns += `<button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${row.kaynak}" data-baslik="${row.baslik}" data-url="${data}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>`;
+                                return btns;
+                            }}
+                            ],
+                            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json' },
+                            responsive: true
+                        });
+                    }
+                });
         });
 
         // CheckAll fonksiyonu
@@ -1258,7 +1344,7 @@
                 text: 'Haberler alınırken bir hata oluştu.'
             });
         });
-    });
+});
 
     // Add click event for yapay-zeka-btn
     $(document).on('click', '.yapay-zeka-btn', function() {
