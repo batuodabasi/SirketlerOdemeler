@@ -90,6 +90,22 @@
     }
 </style>
 
+<!-- Son Dakika Haberleri -->
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card modern-card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-newspaper"></i> Son Dakika Haberleri</h4>
+                </div>
+                <div class="card-body">
+                    <div id="sonDakikaHaberler" class="row"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container mt-5 mb-5">
     <!-- Büyük Google Haber Arama Kutusu -->
     <div class="d-flex justify-content-center align-items-center" style="margin-top: 32px; margin-bottom: 32px;">
@@ -1351,53 +1367,51 @@
         const sirketAdi = $(this).data('sirket');
         const haberBaslik = $(this).data('baslik');
         const haberUrl = $(this).data('url');
+        // TEST: 3. yapay zeka için gönderilen URL'yi console'a yazdır
+        console.log('[TEST] 3. Yapay Zeka için gönderilen haberUrl:', haberUrl);
         Swal.fire({
             title: 'Yapay Zeka Yorumlatılıyor...',
             allowOutsideClick: false,
             didOpen: () => { Swal.showLoading(); }
         });
+
+        // Üç API'ye paralel istek at
+        $.when(
         $.ajax({
             url: '/Home/YapayZekaYorumlat',
             type: 'POST',
-            data: { haberBaslik: haberBaslik },
-            success: function(response) {
-                if (response.success) {
-                    // Yorum geldikten sonra veritabanına ekle
-                    $.ajax({
-                        url: '/Home/HaberYapayZekaYorumEkle',
-                        type: 'POST',
-                        data: { haberBaslik: haberBaslik, yorum: response.yorum },
-                        success: function(res2) {
-                            // İkinci istek başarılıysa kullanıcıya göster
+            data: { haberBaslik: haberBaslik }
+        }),
+        $.ajax({
+            url: '/Home/YapayZekaYorumlat2',
+            type: 'POST',
+            data: { haberBaslik: haberBaslik }
+        }),
+        $.ajax({
+            url: '/Home/YapayZekaYorumlat3',
+            type: 'POST',
+            data: { haberBaslik: haberBaslik, haberUrl: haberUrl }
+        })
+        ).done(function(resp1, resp2, resp3) {
+            // resp1, resp2, resp3: [response, status, jqXHR]
+            const y1 = resp1[0];
+            const y2 = resp2[0];
+            const y3 = resp3[0];
+            let html = `<div><b>Şirket:</b> ${sirketAdi}<br><b>Başlık:</b> ${haberBaslik}<br><b>URL:</b> <a href='${haberUrl}' target='_blank'>Habere Git</a></div><hr>`;
+            html += `<div style='margin-bottom:10px;'><b>Yapay Zeka 1:</b><br><span style='white-space:pre-line;'>${y1.success ? y1.yorum : (y1.message || 'Yorum alınamadı.')}</span></div>`;
+            html += `<div style='margin-bottom:10px;'><b>Yapay Zeka 2:</b><br><span style='white-space:pre-line;'>${y2.success ? y2.yorum : (y2.message || 'Yorum alınamadı.')}</span></div>`;
+            html += `<div><b>Yapay Zeka 3:</b><br><span style='white-space:pre-line;'>${y3.success ? y3.yorum : (y3.message || 'Yorum alınamadı.')}</span></div>`;
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Yapay Zeka Yorumu',
-                                html: `<div><b>Şirket:</b> ${sirketAdi}<br><b>Başlık:</b> ${haberBaslik}<br><b>URL:</b> <a href='${haberUrl}' target='_blank'>Habere Git</a></div><hr><div style='white-space:pre-line;'>${response.yorum}</div><hr><div style='color:green;font-size:0.95em;'>Yapay zeka yorumu veritabanına kaydedildi.</div>`
-                            });
-                        },
-                        error: function() {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Yapay Zeka Yorumu',
-                                html: `<div><b>Şirket:</b> ${sirketAdi}<br><b>Başlık:</b> ${haberBaslik}<br><b>URL:</b> <a href='${haberUrl}' target='_blank'>Habere Git</a></div><hr><div style='white-space:pre-line;'>${response.yorum}</div><hr><div style='color:orange;font-size:0.95em;'>Yapay zeka yorumu veritabanına kaydedilemedi.</div>`
-                            });
-                        }
-                    });
-                } else {
+                icon: (y1.success || y2.success || y3.success) ? 'success' : 'error',
+                title: 'Yapay Zeka Yorumları',
+                html: html
+            });
+        }).fail(function() {
                     Swal.fire({
                         icon: 'error',
                         title: 'Hata',
-                        text: response.message
-                    });
-                }
-            },
-            error: function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Hata',
-                    text: 'Yapay zeka servisine erişilemedi.'
+                text: 'Yapay zeka servislerine erişilemedi.'
                 });
-            }
         });
     });
 
@@ -1450,6 +1464,102 @@
                     title: 'Hata',
                     text: 'Haber kaydedilirken bir hata oluştu.'
                 });
+            }
+        });
+    });
+
+    // İkinci yapay zeka butonu için event
+    $(document).on('click', '.yapay-zeka2-btn', function() {
+        const sirketAdi = $(this).data('sirket');
+        const haberBaslik = $(this).data('baslik');
+        const haberUrl = $(this).data('url');
+        Swal.fire({
+            title: 'Yapay Zeka 2 Yorumlatılıyor...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+        $.ajax({
+            url: '/Home/YapayZekaYorumlat2',
+            type: 'POST',
+            data: { haberBaslik: haberBaslik },
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Yapay Zeka 2 Yorumu',
+                        html: `<div><b>Şirket:</b> ${sirketAdi}<br><b>Başlık:</b> ${haberBaslik}<br><b>URL:</b> <a href='${haberUrl}' target='_blank'>Habere Git</a></div><hr><div style='white-space:pre-line;'>${response.yorum}</div>`
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Hata',
+                        text: response.message
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hata',
+                    text: 'Yapay zeka 2 servisine erişilemedi.'
+                });
+            }
+        });
+    });
+
+    // Son dakika haberlerini yükle
+    $(document).ready(function() {
+        // Sayfa yüklendiğinde "Veriler Alınıyor" SweetAlert göster
+        Swal.fire({
+            title: 'Veriler Alınıyor',
+            text: 'Son dakika haberleri yükleniyor...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+        
+        // Son dakika haberlerini getir
+        $.ajax({
+            url: '/Home/SonDakikaHaberleriGetir',
+            type: 'GET',
+            success: function(response) {
+                Swal.close(); // Yükleme ekranını kapat
+                
+                if (response.success && response.haberler && response.haberler.length > 0) {
+                    let html = '';
+                    
+                    // Her haber için card oluştur
+                    response.haberler.forEach(function(haber) {
+                        html += `
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        ${haber.gorselUrl ? `<img src="${haber.gorselUrl}" class="img-fluid rounded-start" alt="Haber görseli" style="height: 100%; object-fit: cover;">` : '<div class="bg-light d-flex align-items-center justify-content-center h-100"><i class="bi bi-image text-muted" style="font-size: 3rem;"></i></div>'}
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${haber.baslik}</h5>
+                                            <p class="card-text">${haber.ozet || 'İçerik bulunamadı.'}</p>
+                                            <p class="card-text"><small class="text-muted">Kaynak: ${haber.kaynak}</small></p>
+                                            <div class="mt-2">
+                                                <a href="${haber.link}" target="_blank" class="btn btn-sm btn-primary"><i class="bi bi-link"></i> Habere Git</a>
+                                                <button class="btn btn-sm btn-warning yapay-zeka-btn" data-sirket="${haber.kaynak}" data-baslik="${haber.baslik}" data-url="${haber.link}"><i class="bi bi-robot"></i> Yapay Zekaya Yorumlat!</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    
+                    $('#sonDakikaHaberler').html(html);
+                } else {
+                    $('#sonDakikaHaberler').html('<div class="col-12"><div class="alert alert-info">Son dakika haberi bulunamadı.</div></div>');
+                }
+            },
+            error: function() {
+                Swal.close();
+                $('#sonDakikaHaberler').html('<div class="col-12"><div class="alert alert-danger">Haberler yüklenirken bir hata oluştu.</div></div>');
             }
         });
     });
