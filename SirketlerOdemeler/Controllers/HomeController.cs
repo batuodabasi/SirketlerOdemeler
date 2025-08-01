@@ -178,7 +178,8 @@ namespace SirketlerOdemeler.Controllers
                     var imgAlt = imgMatch.Success ? imgMatch.Groups[2].Value : null;
                     if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
                     {
-                        basliklarWithImg.Add(new {
+                        basliklarWithImg.Add(new
+                        {
                             kaynak = "Habertürk",
                             baslik = baslik,
                             imgSrc = imgSrc,
@@ -249,7 +250,8 @@ namespace SirketlerOdemeler.Controllers
                     }
                     if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
                     {
-                        basliklarWithImg.Add(new {
+                        basliklarWithImg.Add(new
+                        {
                             kaynak = "NTV",
                             baslik = baslik,
                             imgSrc = imgSrc,
@@ -281,27 +283,27 @@ namespace SirketlerOdemeler.Controllers
                 var httpClientWithUA = _httpClientFactory.CreateClient();
                 httpClientWithUA.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
                 var html = await httpClientWithUA.GetStringAsync(urlHaberlerCom);
-                
+
                 // Daha basit yaklaşım: Her kartı ayrı ayrı işle
                 var basliklarWithImg = new System.Collections.Generic.List<object>();
                 int haberCount = 0;
                 const int MAX_HABER_PER_SOURCE = 5;
-                
+
                 // Önce tüm kartları bul
                 var kartlarMatches = Regex.Matches(html, "<div class=\"new3card\"[^>]*>[\\s\\S]*?</div>\\s*</div>", RegexOptions.IgnoreCase);
-                
+
                 foreach (Match kart in kartlarMatches.Cast<Match>().Take(MAX_HABER_PER_SOURCE))
                 {
                     var kartHtml = kart.Value;
-                    
+
                     // Başlık
                     var h3Match = Regex.Match(kartHtml, "<h3>(.*?)</h3>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
                     var baslik = h3Match.Success ? Regex.Replace(h3Match.Groups[1].Value, "<.*?>", string.Empty).Trim() : null;
-                    
+
                     // Link
                     var linkMatch = Regex.Match(kartHtml, "<a[^>]*href=\"([^\"]+)\"", RegexOptions.IgnoreCase);
                     var link = linkMatch.Success ? "https://www.haberler.com" + linkMatch.Groups[1].Value : null;
-                    
+
                     // Kartın içindeki ilk <img ...> etiketini bul
                     var imgTagMatch = Regex.Match(kartHtml, "<img[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
                     string imgSrc = null, imgAlt = null;
@@ -313,14 +315,15 @@ namespace SirketlerOdemeler.Controllers
                         imgSrc = srcMatch.Success ? srcMatch.Groups[1].Value : null;
                         imgAlt = altMatch.Success ? altMatch.Groups[1].Value : null;
                     }
-                    
+
                     // Tarih
                     var tarihMatch = Regex.Match(kartHtml, "<div class=\"hbbiText\">(.*?)</div>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
                     var tarih = tarihMatch.Success ? Regex.Replace(tarihMatch.Groups[1].Value, "<.*?>", string.Empty).Trim() : null;
-                    
+
                     if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
                     {
-                        basliklarWithImg.Add(new {
+                        basliklarWithImg.Add(new
+                        {
                             kaynak = "Haberler.com",
                             baslik = baslik,
                             imgSrc = imgSrc,
@@ -330,7 +333,7 @@ namespace SirketlerOdemeler.Controllers
                         });
                     }
                 }
-                
+
                 // Yedek olarak eski yöntemi de dene
                 if (basliklarWithImg.Count == 0)
                 {
@@ -340,7 +343,8 @@ namespace SirketlerOdemeler.Controllers
                         var baslik = Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim();
                         if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
                         {
-                            basliklarWithImg.Add(new {
+                            basliklarWithImg.Add(new
+                            {
                                 kaynak = "Haberler.com",
                                 baslik = baslik,
                                 imgSrc = (string)null,
@@ -352,7 +356,7 @@ namespace SirketlerOdemeler.Controllers
                         }
                     }
                 }
-                
+
                 if (basliklarWithImg.Count == 0)
                 {
                     hatalar["Haberler.com"] = "Hiç başlık bulunamadı veya sayfa yapısı değişmiş olabilir.";
@@ -388,7 +392,8 @@ namespace SirketlerOdemeler.Controllers
                     var baslik = Regex.Replace(kart.Groups[3].Value, "<.*?>", string.Empty).Trim();
                     if (!string.IsNullOrWhiteSpace(baslik))
                     {
-                        basliklarWithImg.Add(new {
+                        basliklarWithImg.Add(new
+                        {
                             kaynak = "Hürriyet",
                             baslik = baslik,
                             imgSrc = imgSrc,
@@ -470,7 +475,8 @@ namespace SirketlerOdemeler.Controllers
 
                     if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
                     {
-                        basliklarWithImg.Add(new {
+                        basliklarWithImg.Add(new
+                        {
                             kaynak = "Milliyet",
                             baslik = baslik,
                             imgSrc = imgSrc,
@@ -658,35 +664,35 @@ namespace SirketlerOdemeler.Controllers
                             RegexOptions.IgnoreCase | RegexOptions.Singleline);
                         var baslik = baslikMatch.Success ? Regex.Replace(baslikMatch.Groups[1].Value, "<.*?>", string.Empty).Trim() : null;
                         // Link
-var linkMatch = Regex.Match(
-    kartHtml,
-    @"<a[^>]*href=""([^""]+)""[^>]*class=""news__link""",
-    RegexOptions.IgnoreCase);
-var link = linkMatch.Success ? "https://www.milliyet.com.tr" + linkMatch.Groups[1].Value : null;
+                        var linkMatch = Regex.Match(
+                            kartHtml,
+                            @"<a[^>]*href=""([^""]+)""[^>]*class=""news__link""",
+                            RegexOptions.IgnoreCase);
+                        var link = linkMatch.Success ? "https://www.milliyet.com.tr" + linkMatch.Groups[1].Value : null;
 
-// Görsel
-var imgMatch = Regex.Match(
-    kartHtml,
-    @"<img[^>]*src=""([^""]+)""[^>]*alt=""([^""]*)""",
-    RegexOptions.IgnoreCase);
-var imgSrc = imgMatch.Success ? imgMatch.Groups[1].Value : null;
-var imgAlt = imgMatch.Success ? imgMatch.Groups[2].Value : null;
+                        // Görsel
+                        var imgMatch = Regex.Match(
+                            kartHtml,
+                            @"<img[^>]*src=""([^""]+)""[^>]*alt=""([^""]*)""",
+                            RegexOptions.IgnoreCase);
+                        var imgSrc = imgMatch.Success ? imgMatch.Groups[1].Value : null;
+                        var imgAlt = imgMatch.Success ? imgMatch.Groups[2].Value : null;
 
-// Spot
-var spotMatch = Regex.Match(
-    kartHtml,
-    @"<span class=""news__spot"">(.*?)<\/span>",
-    RegexOptions.IgnoreCase | RegexOptions.Singleline);
-var spot = spotMatch.Success
-    ? Regex.Replace(spotMatch.Groups[1].Value, "<.*?>", string.Empty).Trim()
-    : null;
+                        // Spot
+                        var spotMatch = Regex.Match(
+                            kartHtml,
+                            @"<span class=""news__spot"">(.*?)<\/span>",
+                            RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                        var spot = spotMatch.Success
+                            ? Regex.Replace(spotMatch.Groups[1].Value, "<.*?>", string.Empty).Trim()
+                            : null;
 
-// Tarih
-var dateMatch = Regex.Match(
-    kartHtml,
-    @"<span class=""news__date"">(.*?)<\/span>",
-    RegexOptions.IgnoreCase);
-var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
+                        // Tarih
+                        var dateMatch = Regex.Match(
+                            kartHtml,
+                            @"<span class=""news__date"">(.*?)<\/span>",
+                            RegexOptions.IgnoreCase);
+                        var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
 
                         if (!string.IsNullOrWhiteSpace(baslik) && baslik.Contains(sirket, StringComparison.OrdinalIgnoreCase))
                         {
@@ -774,7 +780,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
 
                 // Haber içeriğini çek
                 string haberIcerik = "";
-                
+
                 // Google araması URL'i mi kontrol et
                 if (haberUrl.Contains("google.com/search"))
                 {
@@ -1031,39 +1037,39 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
             {
                 string analizEdilecekIcerik = haberBaslik;
                 string debugInfo = ""; // Debug bilgilerini toplamak için
-                
+
                 // Eğer haberUrl varsa, içeriği çek
                 if (!string.IsNullOrWhiteSpace(haberUrl))
                 {
                     debugInfo += $"URL: {haberUrl}\n";
-                    
+
                     if (haberUrl.Contains("haberturk.com"))
-                {
-                    var httpClient = _httpClientFactory.CreateClient();
+                    {
+                        var httpClient = _httpClientFactory.CreateClient();
                         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-                    var html = await httpClient.GetStringAsync(haberUrl);
+                        var html = await httpClient.GetStringAsync(haberUrl);
 
                         debugInfo += $"HTML Uzunluğu: {html.Length} karakter\n";
-                        
+
                         // Daha esnek bir regex kullan
                         var cmsMatch = Regex.Match(html, "<div[^>]*class=[\"']cms-container[\"'][^>]*>([\\s\\S]*?)</div>", RegexOptions.IgnoreCase);
-                        
+
                         if (cmsMatch.Success)
                         {
                             debugInfo += "cms-container bulundu!\n";
-                            
+
                             var cmsHtml = cmsMatch.Groups[1].Value;
                             var pMatches = Regex.Matches(cmsHtml, "<p[^>]*>(.*?)</p>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                            
+
                             debugInfo += $"Bulunan <p> sayısı: {pMatches.Count}\n";
-                            
+
                             var paragraflar = pMatches.Cast<Match>()
                                 .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
                                 .Where(s => !string.IsNullOrWhiteSpace(s))
                                 .ToList();
-                            
+
                             debugInfo += $"Boş olmayan paragraf sayısı: {paragraflar.Count}\n";
-                            
+
                             if (paragraflar.Any())
                             {
                                 analizEdilecekIcerik = string.Join("\n", paragraflar);
@@ -1078,7 +1084,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                         else
                         {
                             debugInfo += "cms-container bulunamadı!\n";
-                            
+
                             // Alternatif yöntem dene
                             var contentMatch = Regex.Match(html, "<div[^>]*class=[\"']content[\"'][^>]*>([\\s\\S]*?)</div>", RegexOptions.IgnoreCase);
                             if (contentMatch.Success)
@@ -1090,7 +1096,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                                     .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
                                     .Where(s => !string.IsNullOrWhiteSpace(s))
                                     .ToList();
-                                
+
                                 if (paragraflar.Any())
                                 {
                                     analizEdilecekIcerik = string.Join("\n", paragraflar);
@@ -1107,32 +1113,32 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                     else if (haberUrl.Contains("ntv.com.tr"))
                     {
                         debugInfo += "NTV haberi tespit edildi.\n";
-                        
+
                         var httpClient = _httpClientFactory.CreateClient();
                         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
                         var html = await httpClient.GetStringAsync(haberUrl);
-                        
+
                         debugInfo += $"HTML Uzunluğu: {html.Length} karakter\n";
-                        
+
                         try
                         {
                             // HTML'i parse et
                             // XPath: /html/body/div[2]/div/section/div[1]/div[2]/div[2]/div/div/div/article/h2
-                            
+
                             // Önce article elementini bul
                             var articleMatch = Regex.Match(html, "<article[^>]*>([\\s\\S]*?)</article>", RegexOptions.IgnoreCase);
                             if (articleMatch.Success)
                             {
                                 debugInfo += "Article elementi bulundu.\n";
                                 var articleContent = articleMatch.Groups[1].Value;
-                                
+
                                 // Article içinde doğrudan h2 elementini ara
                                 var h2Match = Regex.Match(articleContent, "<h2[^>]*>(.*?)</h2>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
                                 if (h2Match.Success)
                                 {
                                     debugInfo += "H2 elementi bulundu.\n";
                                     var h2Content = Regex.Replace(h2Match.Groups[1].Value, "<.*?>", string.Empty).Trim();
-                                    
+
                                     if (!string.IsNullOrWhiteSpace(h2Content))
                                     {
                                         analizEdilecekIcerik = h2Content;
@@ -1147,7 +1153,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                                             .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
                                             .Where(s => !string.IsNullOrWhiteSpace(s))
                                             .ToList();
-                                        
+
                                         if (paragraflar.Any())
                                         {
                                             analizEdilecekIcerik = string.Join("\n", paragraflar);
@@ -1169,7 +1175,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                                         .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
                                         .Where(s => !string.IsNullOrWhiteSpace(s))
                                         .ToList();
-                                    
+
                                     if (paragraflar.Any())
                                     {
                                         analizEdilecekIcerik = string.Join("\n", paragraflar);
@@ -1196,7 +1202,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                                         .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
                                         .Where(s => !string.IsNullOrWhiteSpace(s))
                                         .ToList();
-                                    
+
                                     if (paragraflar.Any())
                                     {
                                         analizEdilecekIcerik = string.Join("\n", paragraflar);
@@ -1224,39 +1230,39 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                     else if (haberUrl.Contains("haberler.com"))
                     {
                         debugInfo += "Haberler.com haberi tespit edildi.\n";
-                        
+
                         var httpClient = _httpClientFactory.CreateClient();
                         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
                         var html = await httpClient.GetStringAsync(haberUrl);
-                        
+
                         debugInfo += $"HTML Uzunluğu: {html.Length} karakter\n";
-                        
+
                         try
                         {
                             // HTML'i parse et
                             // XPath: /html/body/main/div[3]/div[1]/article/div/h2
-                            
+
                             // Önce main elementini bul
                             var mainMatch = Regex.Match(html, "<main[^>]*>([\\s\\S]*?)</main>", RegexOptions.IgnoreCase);
                             if (mainMatch.Success)
                             {
                                 debugInfo += "Main elementi bulundu.\n";
                                 var mainContent = mainMatch.Groups[1].Value;
-                                
+
                                 // Main içinde div[3]/div[1]/article yapısını ara
                                 var articleMatch = Regex.Match(mainContent, "<div[^>]*>([\\s\\S]*?)<div[^>]*>([\\s\\S]*?)<article[^>]*>([\\s\\S]*?)</article>", RegexOptions.IgnoreCase);
                                 if (articleMatch.Success)
                                 {
                                     debugInfo += "Article elementi bulundu.\n";
                                     var articleContent = articleMatch.Groups[3].Value;
-                                    
+
                                     // Article içinde div/h2 yapısını ara
                                     var h2Match = Regex.Match(articleContent, "<div[^>]*>([\\s\\S]*?)<h2[^>]*>(.*?)</h2>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
                                     if (h2Match.Success)
                                     {
                                         debugInfo += "H2 elementi bulundu.\n";
                                         var h2Content = Regex.Replace(h2Match.Groups[2].Value, "<.*?>", string.Empty).Trim();
-                                        
+
                                         if (!string.IsNullOrWhiteSpace(h2Content))
                                         {
                                             analizEdilecekIcerik = h2Content;
@@ -1271,7 +1277,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                                                 .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
                                                 .Where(s => !string.IsNullOrWhiteSpace(s))
                                                 .ToList();
-                                            
+
                                             if (paragraflar.Any())
                                             {
                                                 analizEdilecekIcerik = string.Join("\n", paragraflar);
@@ -1293,7 +1299,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                                             .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
                                             .Where(s => !string.IsNullOrWhiteSpace(s))
                                             .ToList();
-                                        
+
                                         if (paragraflar.Any())
                                         {
                                             analizEdilecekIcerik = string.Join("\n", paragraflar);
@@ -1320,7 +1326,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                                             .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
                                             .Where(s => !string.IsNullOrWhiteSpace(s))
                                             .ToList();
-                                        
+
                                         if (paragraflar.Any())
                                         {
                                             analizEdilecekIcerik = string.Join("\n", paragraflar);
@@ -1353,7 +1359,7 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                                         .Select(m => Regex.Replace(m.Groups[1].Value, "<.*?>", string.Empty).Trim())
                                         .Where(s => !string.IsNullOrWhiteSpace(s))
                                         .ToList();
-                                    
+
                                     if (paragraflar.Any())
                                     {
                                         analizEdilecekIcerik = string.Join("\n", paragraflar);
@@ -1383,23 +1389,23 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                         // Diğer siteler için mevcut davranış
                         var httpClient = _httpClientFactory.CreateClient();
                         var html = await httpClient.GetStringAsync(haberUrl);
-                        
+
                         // <h2>, <p>, <article> gibi etiketleri dene
                         var icerikMatch = Regex.Match(html, "<div[^>]*class=\"[^\"]*\"[^>]*>[\\s\\S]*?<h2[^>]*>(.*?)</h2>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                    if (icerikMatch.Success)
+                        if (icerikMatch.Success)
                         {
-                        analizEdilecekIcerik = Regex.Replace(icerikMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
+                            analizEdilecekIcerik = Regex.Replace(icerikMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
                         }
-                    else
-                    {
-                        var pMatch = Regex.Match(html, "<p[^>]*>(.*?)</p>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                        if (pMatch.Success)
-                            analizEdilecekIcerik = Regex.Replace(pMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
                         else
                         {
-                            var articleMatch = Regex.Match(html, "<article[^>]*>(.*?)</article>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                            if (articleMatch.Success)
-                                analizEdilecekIcerik = Regex.Replace(articleMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
+                            var pMatch = Regex.Match(html, "<p[^>]*>(.*?)</p>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                            if (pMatch.Success)
+                                analizEdilecekIcerik = Regex.Replace(pMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
+                            else
+                            {
+                                var articleMatch = Regex.Match(html, "<article[^>]*>(.*?)</article>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                                if (articleMatch.Success)
+                                    analizEdilecekIcerik = Regex.Replace(articleMatch.Groups[1].Value, "<.*?>", string.Empty).Trim();
                             }
                         }
                     }
@@ -1444,17 +1450,17 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
             {
                 // İstenen URL'yi kullan
                 var url = "https://www.google.com/search?sca_esv=271f39430edfaf17&sxsrf=AE3TifMe5IlWeSccnIBgUjHt6s_qd8_mzA:1753700270269&q=son+dakika&tbm=nws&source=lnms&fbs=AIIjpHye9Jn1cEV4mp9F4vD4AbivYv7KuROGRiE0IT33wd2SNhfClh46gBkjz7_L4mLGfkvVvwqx6wMJWPMnfUQ4-yxa4zdUBgOZePRl2RarxIYXv-26Fm6HRejzkOlaOgLvebIVwo5zmBDXG7C9tfbSmiAQwuYd4CBV4Mfpb1MWqrN9c6yIRjxiryYmZijvB-jQ2_UKoJc5eISIQjtF4QvyHbkOJeD4eftlFAl0JBedbPCpTpbHDh1uxIELtg0XwR2o8RZFkobt&sa=X&ved=2ahUKEwilm5vNst-OAxWfXvEDHTfmGOgQ0pQJKAF6BAgdEAE";
-        var httpClient = _httpClientFactory.CreateClient();
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-        
-        var html = await httpClient.GetStringAsync(url);
-        
-        // Debug için HTML'i kaydet
-        System.IO.File.WriteAllText("google_news_debug.html", html);
-        
-        // Sabit haberler - Google News'den çekemediğimiz durumda bunları kullanacağız
-        var bugun = DateTime.Now.ToString("dd.MM.yyyy");
-        var sabitHaberler = new List<object>
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+
+                var html = await httpClient.GetStringAsync(url);
+
+                // Debug için HTML'i kaydet
+                System.IO.File.WriteAllText("google_news_debug.html", html);
+
+                // Sabit haberler - Google News'den çekemediğimiz durumda bunları kullanacağız
+                var bugun = DateTime.Now.ToString("dd.MM.yyyy");
+                var sabitHaberler = new List<object>
         {
             new
             {
@@ -1502,82 +1508,96 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                 tarih = bugun
             }
         };
-        
-        try
-        {
-            // Google'dan haber çekmeyi dene
-            var haberler = new List<object>();
-            
-            // Çok daha basit bir yaklaşım kullan
-            // Tüm <a> etiketlerini bul ve içinde "son dakika" içerenleri al
-            var linkMatches = Regex.Matches(html, "<a[^>]*href=\"([^\"]+)\"[^>]*>(.*?)</a>", RegexOptions.Singleline);
-            
-            foreach (Match linkMatch in linkMatches)
-            {
-                var linkHtml = linkMatch.Groups[2].Value;
-                var linkUrl = linkMatch.Groups[1].Value;
-                
-                // Google'ın yönlendirme URL'sini çözümle
-                if (linkUrl.StartsWith("/url?q="))
+
+                try
                 {
-                    linkUrl = linkUrl.Substring(7);
-                    var endIndex = linkUrl.IndexOf("&");
-                    if (endIndex > 0)
-                        linkUrl = linkUrl.Substring(0, endIndex);
-                }
-                
-                // İçinde "son dakika" geçen ve başlık içeren linkleri bul
-                if ((linkHtml.Contains("son dakika", StringComparison.OrdinalIgnoreCase) || 
-                     linkHtml.Contains("Son Dakika", StringComparison.OrdinalIgnoreCase)) &&
-                    linkUrl.Contains("http"))
-                {
-                    // Başlığı temizle
-                    var baslik = Regex.Replace(linkHtml, "<.*?>", string.Empty).Trim();
-                    
-                    // Kaynak adını URL'den çıkar
-                    var uri = new Uri(linkUrl);
-                    var host = uri.Host.Replace("www.", "");
-                    var kaynak = host.Split('.')[0];
-                    kaynak = char.ToUpper(kaynak[0]) + kaynak.Substring(1);
-                    
-                    haberler.Add(new
+                    // Google'dan haber çekmeyi dene
+                    var haberler = new List<object>();
+
+                    // Çok daha basit bir yaklaşım kullan
+                    // Tüm <a> etiketlerini bul ve içinde "son dakika" içerenleri al
+                    var linkMatches = Regex.Matches(html, "<a[^>]*href=\"([^\"]+)\"[^>]*>(.*?)</a>", RegexOptions.Singleline);
+
+                    // içeriği aynı bıraktım, yalnızca haberler foreach bloğu geliştirildi
+
+                    foreach (Match linkMatch in linkMatches)
                     {
-                        baslik = baslik,
-                        gorselUrl = "", // Görsel URL'si bulunamadı
-                        link = linkUrl,
-                        kaynak = kaynak,
-                        ozet = $"{bugun} - {baslik}",
-                        tarih = bugun
-                    });
-                    
-                    if (haberler.Count >= 5)
-                        break;
+                        var linkHtml = linkMatch.Groups[2].Value;
+                        var linkUrl = linkMatch.Groups[1].Value;
+
+                        // Google yönlendirme URL'sini çöz
+                        if (linkUrl.StartsWith("/url?q="))
+                        {
+                            linkUrl = linkUrl.Substring(7);
+                            var endIndex = linkUrl.IndexOf("&");
+                            if (endIndex > 0)
+                                linkUrl = linkUrl.Substring(0, endIndex);
+                        }
+
+                        if ((linkHtml.Contains("son dakika", StringComparison.OrdinalIgnoreCase) ||
+                             linkHtml.Contains("Son Dakika", StringComparison.OrdinalIgnoreCase)) &&
+                            linkUrl.Contains("http"))
+                        {
+                            var baslik = Regex.Replace(linkHtml, "<.*?>", string.Empty).Trim();
+                            var uri = new Uri(linkUrl);
+                            var host = uri.Host.Replace("www.", "");
+                            var kaynak = char.ToUpper(host[0]) + host.Substring(1);
+
+                            // Görseli almak için habere git ve og:image metadatasını ara
+                            string gorselUrl = "";
+                            try
+                            {
+                                var haberHtml = await httpClient.GetStringAsync(linkUrl);
+
+                                var ogImageMatch = Regex.Match(haberHtml, "<meta property=\"og:image\" content=\"([^\"]+)\"", RegexOptions.IgnoreCase);
+                                if (ogImageMatch.Success)
+                                {
+                                    gorselUrl = ogImageMatch.Groups[1].Value;
+                                }
+                            }
+                            catch (Exception imgEx)
+                            {
+                                // görsel alınamazsa sorun değil, boş bırakılır
+                            }
+
+                            haberler.Add(new
+                            {
+                                baslik = baslik,
+                                gorselUrl = gorselUrl,
+                                link = linkUrl,
+                                kaynak = kaynak,
+                                ozet = $"{bugun} - {baslik}",
+                                tarih = bugun
+                            });
+
+                            if (haberler.Count >= 5)
+                                break;
+                        }
+                    }
+
+                    // Eğer hiç haber bulunamadıysa sabit haberleri kullan
+                    if (haberler.Count == 0)
+                    {
+                        return Json(new { success = true, haberler = sabitHaberler });
+                    }
+
+                    return Json(new { success = true, haberler });
+                }
+                catch (Exception ex)
+                {
+                    // İç hata durumunda log tut ve sabit haberleri dön
+                    System.IO.File.WriteAllText("google_news_inner_error.txt", ex.ToString());
+                    return Json(new { success = true, haberler = sabitHaberler });
                 }
             }
-            
-            // Eğer hiç haber bulunamadıysa sabit haberleri kullan
-            if (haberler.Count == 0)
+            catch (Exception ex)
             {
-                return Json(new { success = true, haberler = sabitHaberler });
-            }
-            
-            return Json(new { success = true, haberler });
-        }
-        catch (Exception ex)
-        {
-            // İç hata durumunda log tut ve sabit haberleri dön
-            System.IO.File.WriteAllText("google_news_inner_error.txt", ex.ToString());
-            return Json(new { success = true, haberler = sabitHaberler });
-        }
-    }
-    catch (Exception ex)
-    {
-        // Genel hata durumunda log tut
-        System.IO.File.WriteAllText("google_news_error.txt", ex.ToString());
-        
-        // Hata durumunda sabit haberler göster
-        var bugun = DateTime.Now.ToString("dd.MM.yyyy");
-        var haberler = new List<object>
+                // Genel hata durumunda log tut
+                System.IO.File.WriteAllText("google_news_error.txt", ex.ToString());
+
+                // Hata durumunda sabit haberler göster
+                var bugun = DateTime.Now.ToString("dd.MM.yyyy");
+                var haberler = new List<object>
         {
             new
             {
@@ -1625,10 +1645,10 @@ var date = dateMatch.Success ? dateMatch.Groups[1].Value.Trim() : null;
                 tarih = bugun
             }
         };
-        
-        return Json(new { success = true, haberler, error = ex.Message });
-    }
-}
+
+                return Json(new { success = true, haberler, error = ex.Message });
+            }
+        }
 
         // ... diğer kodlar ...
 

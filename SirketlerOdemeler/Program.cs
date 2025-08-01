@@ -55,28 +55,28 @@ using (var scope = app.Services.CreateScope())
         );
         context.SaveChanges();
     }
-    //if (!context.HaberlerKategoriler.Any())
-    //{
-    //    context.HaberlerKategoriler.AddRange(
-    //        new HaberlerKategoriler { KategoriId = 1, KategoriAd = "Gündem" },
-    //        new HaberlerKategoriler { KategoriId = 2, KategoriAd = "Siyaset" },
-    //        new HaberlerKategoriler { KategoriId = 3, KategoriAd = "Ekonomi" },
-    //        new HaberlerKategoriler { KategoriId = 4, KategoriAd = "Spor" },
-    //        new HaberlerKategoriler { KategoriId = 5, KategoriAd = "Dünya" },
-    //        new HaberlerKategoriler { KategoriId = 6, KategoriAd = "Magazin" },
-    //        new HaberlerKategoriler { KategoriId = 7, KategoriAd = "Teknoloji" },
-    //        new HaberlerKategoriler { KategoriId = 8, KategoriAd = "Sağlık" },
-    //        new HaberlerKategoriler { KategoriId = 9, KategoriAd = "Kültür-Sanat" },
-    //        new HaberlerKategoriler { KategoriId = 10, KategoriAd = "Eğitim" },
-    //        new HaberlerKategoriler { KategoriId = 11, KategoriAd = "Çevre" },
-    //        new HaberlerKategoriler { KategoriId = 12, KategoriAd = "Bilim" },
-    //        new HaberlerKategoriler { KategoriId = 13, KategoriAd = "Yaşam" },
-    //        new HaberlerKategoriler { KategoriId = 14, KategoriAd = "Otomobil" },
-    //        new HaberlerKategoriler { KategoriId = 15, KategoriAd = "Hava Durumu" },
-    //        new HaberlerKategoriler { KategoriId = 16, KategoriAd = "Son Dakika" }
-    //    );
-    //    context.SaveChanges();
-    //}
+    if (!context.HaberlerKategoriler.Any())
+    {
+        context.HaberlerKategoriler.AddRange(
+            new HaberlerKategoriler { KategoriAd = "Gündem" },
+            new HaberlerKategoriler { KategoriAd = "Siyaset" },
+            new HaberlerKategoriler { KategoriAd = "Ekonomi" },
+            new HaberlerKategoriler { KategoriAd = "Spor" },
+            new HaberlerKategoriler { KategoriAd = "Dünya" },
+            new HaberlerKategoriler { KategoriAd = "Magazin" },
+            new HaberlerKategoriler { KategoriAd = "Teknoloji" },
+            new HaberlerKategoriler { KategoriAd = "Sağlık" },
+            new HaberlerKategoriler { KategoriAd = "Kültür-Sanat" },
+            new HaberlerKategoriler { KategoriAd = "Eğitim" },
+            new HaberlerKategoriler { KategoriAd = "Çevre" },
+            new HaberlerKategoriler { KategoriAd = "Bilim" },
+            new HaberlerKategoriler { KategoriAd = "Yaşam" },
+            new HaberlerKategoriler { KategoriAd = "Otomobil" },
+            new HaberlerKategoriler { KategoriAd = "Hava Durumu" },
+            new HaberlerKategoriler { KategoriAd = "Son Dakika" }
+        );
+        context.SaveChanges();
+    }
 }
 
 if (!app.Environment.IsDevelopment())

@@ -20,5 +20,8 @@ namespace SirketlerOdemeler.Data
         public DbSet<Haberler> Haberler { get; set; }
 
         public DbSet<HaberlerKategoriler> HaberlerKategoriler { get; set; }
+
+        public DbSet<HaberKayitlar> HaberKayitlar{ get; set; }
+
     }
 }
